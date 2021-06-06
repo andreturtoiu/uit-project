@@ -78,6 +78,31 @@ export class DragAndDropZone extends React.Component{
         this.setState({childrenDrag:new_childs_drag})
     }
 
+    drawLine(conn_click, button_refs, id_b1, id_b2, block_click){
+        const line_id = Math.random() 
+        var arrows = this.state.arrows
+        var arrows_blocks_refs = this.state.arrows_blocks_refs
+        arrows[line_id] = connectElements(conn_click[0], conn_click[1], this.refDropZone)
+        arrows_blocks_refs[line_id] = button_refs
+        var b_arrows = this.state.block_arrows                    
+        var a_blocks = this.state.arrows_blocks
+        b_arrows[id_b1] ? b_arrows[id_b1].push(line_id) : b_arrows[id_b1] = [line_id]
+        b_arrows[id_b2] ? b_arrows[id_b2].push(line_id) : b_arrows[id_b2] = [line_id]
+        a_blocks[line_id] = [id_b1,id_b2]
+        var blocks_refs = this.state.blocks_refs
+        blocks_refs[id_b1] = block_click[0]
+        blocks_refs[id_b2] = block_click[1]
+        this.setState({
+            arrows:arrows,
+            block_arrows: b_arrows,
+            arrows_blocks: a_blocks,
+            arrows_blocks_refs:arrows_blocks_refs,
+            button_refs:[],
+            blocks_refs: blocks_refs,
+            conn_click:[],
+            conn_blocks:[]})
+    }
+
     //Connects two block
     callbackDraw=(blockRef, button, buttonRef)=>{      
         var conn_click = this.state.conn_click        
@@ -100,30 +125,19 @@ export class DragAndDropZone extends React.Component{
                 const id_b2 = parseFloat(block_click[1].id.split('-')[2])
                 console.log(id_b1)
                 if(!checkBlocksAlreadyConnected(this.state.block_arrows,id_b1,id_b2)){
-                    var arrows = this.state.arrows
-                    var arrows_blocks_refs = this.state.arrows_blocks_refs
-                    const line_id = Math.random()
-                    console.log(button_refs[0].attributes.type.value,button_refs[1].attributes.type.value)
                     if(button_refs[0].attributes.type.value ==='bottom' && button_refs[1].attributes.type.value ==='top'){
-                        arrows[line_id] = connectElements(conn_click[0], conn_click[1], this.refDropZone)
-                        arrows_blocks_refs[line_id] = button_refs
-                        var b_arrows = this.state.block_arrows                    
-                        var a_blocks = this.state.arrows_blocks
-                        b_arrows[id_b1] ? b_arrows[id_b1].push(line_id) : b_arrows[id_b1] = [line_id]
-                        b_arrows[id_b2] ? b_arrows[id_b2].push(line_id) : b_arrows[id_b2] = [line_id]
-                        a_blocks[line_id] = [id_b1,id_b2]
-                        var blocks_refs = this.state.blocks_refs
-                        blocks_refs[id_b1] = block_click[0]
-                        blocks_refs[id_b2] = block_click[1]
-                        this.setState({
-                            arrows:arrows,
-                            block_arrows: b_arrows,
-                            arrows_blocks: a_blocks,
-                            arrows_blocks_refs:arrows_blocks_refs,
-                            button_refs:[],
-                            blocks_refs: blocks_refs,
-                            conn_click:[],
-                            conn_blocks:[]})
+                        const b2_arrows = this.state.block_arrows[id_b2]
+                        var count = 0
+                        if(b2_arrows){
+                            b2_arrows.forEach(arrow=>{if(this.state.arrows_blocks[arrow][1] === id_b2) count+=1})
+                        }
+                        if(count===0)
+                            this.drawLine(conn_click, button_refs, id_b1, id_b2, block_click)
+                        else{
+                            if(this.state.childrenDropType[id_b2]==='MERGE')
+                                this.drawLine(conn_click, button_refs, id_b1, id_b2, block_click)
+                            else console.log('SET ERROR FOR MULTIPLE INPUT')
+                        }
                     }
                     else this.setState({ button_refs:[], conn_click:[], conn_blocks:[]})                    
                 }

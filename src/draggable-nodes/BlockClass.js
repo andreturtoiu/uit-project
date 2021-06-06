@@ -88,6 +88,7 @@ class BlockClass extends React.Component {
             <div
             id={this.props.id}
             key={this.props.key}
+            block_type = {this.props.block_type}
             className={`${this.props.dragZone? ('start-node-drag '+ this.props.block_type): 'start-node-drop'}`}
             onMouseDown={e=>this.handleMouseDown(e)}
             ref={this.setHandleRef}>
