@@ -1,0 +1,31 @@
+
+#drag-zone{
+    height: 100vh;
+    width: 10%;
+    border: 1px solid black;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+}
+
+#drop-zone{
+   height: 100vh;
+    width: 90%;
+    border: 1px solid black;
+    background-color: rgb(255, 255, 255);    
+    border-radius: 7px;
+    touch-action: none;
+}
+
+.arrow:hover{
+    stroke-width: 3;
+    stroke: red;
+    stroke-dashoffset: 1%;
+    cursor: pointer;
+}
+
+#arrowhead:hover{
+    color: red;
+    cursor: pointer;
+}
+  

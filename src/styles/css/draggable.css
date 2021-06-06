@@ -1,0 +1,59 @@
+.start-node-drag{
+    width: 10rem;
+    height: 3rem;
+    margin-left: 1em;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;   
+}
+.start-node-drop{
+    position: absolute;
+    touch-action: none;
+    user-select: none; 
+}
+
+
+.general-block{
+    width: 9em;
+    height: 6em;        
+    border: dashed 1px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.general-block:hover{
+    cursor: pointer;
+}
+
+
+.conn-btn-top{ transform: rotate(90deg) translate(-1em) rotate(-90deg); }
+.conn-btn-top-2{ transform: rotate(360grad) translate(-4.5em) rotate(-360grad); }
+.conn-btn-bottom-2{ transform: rotate(360grad) translate(4.5em) rotate(360grad);}
+.conn-btn-bottom{ transform: rotate(-90deg) translate(0) rotate(90deg);}
+.conn-btn-begin-bottom{ transform: rotate(-90deg) translate(-1em) rotate(90deg);}
+
+.fa-icon{color:white}
+
+.fa-icon:hover{
+    font-size:1.1em;
+    color:rgb(165, 165, 165)
+}
+
+
+.BEGIN {background-color:#c70202}
+.END {background-color: #4b8008}
+.SELECT {background-color:#878787}
+.MERGE {background-color:#0082b5}
+.FILTER {background-color:#995700}
+.RESAMPLE {background-color:#990f77}
+.PREPROCESSING {background-color:#34124d}
+.AGGREGATE {background-color:#729100}
+.DEFAULT {background-color:white}
+
+
+/*
+input[type='file'] {
+    color: rgba(0, 0, 0, 0)  }
+  
+*/
+
