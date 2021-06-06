@@ -18,10 +18,14 @@ class Block extends BlockClass{
         this.top_button = React.createRef()
         this.bottom_button = React.createRef()
         this.state={
-            blockRef:this.handleRef,            
+            blockRef:this.handleRef,
+            childsRefs: this.props.childsRef
         }      
     }
     
+    componentDidUpdate(){
+        console.log(this.props.childsRef)
+    }
 
     trashCallback=()=>{        
         this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.id.split('-')[2]))
@@ -33,8 +37,7 @@ class Block extends BlockClass{
 
   
 
-    getBlockByType(type){ 
-        console.log(type)
+    getBlockByType(type){     
     const { params, value } = this.state
     switch (type) {
         case "BEGIN": return (
@@ -58,11 +61,11 @@ class Block extends BlockClass{
             parentCallbackTrash={this.trashCallback} 
             parentCallbackDraw={this.drawCallback}/>)
         case "RESAMPLE": return  (
-            <Resample
-                blockRef={this.handleRef}
-                value={value}
-                parentCallbackTrash={this.trashCallback} 
-                parentCallbackDraw={this.drawCallback}/>)
+        <Resample
+            blockRef={this.handleRef}
+            value={value}
+            parentCallbackTrash={this.trashCallback} 
+            parentCallbackDraw={this.drawCallback}/>)
         case "PREPROCESSING": return (
         <Preprocessing
             blockRef={this.handleRef}
