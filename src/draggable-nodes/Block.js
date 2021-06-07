@@ -17,25 +17,26 @@ class Block extends BlockClass{
         super(props); 
         this.top_button = React.createRef()
         this.bottom_button = React.createRef()
+        this.blockRef = this.handleRef
         this.state={
             blockRef:this.handleRef,
-            childsRefs: this.props.childsRef
+            parentRefs: this.props.parentRefs
         }      
     }
     
     componentDidUpdate(){
-        console.log(this.props.childsRef)
+        console.log(this.props.parentRefs)
     }
-
+   
     trashCallback=()=>{        
-        this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.id.split('-')[2]))
+        this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
     }
 
     drawCallback=(e,ref)=>{
-        this.props.parentCallbackDraw(this.handleRef,e,ref.current)
+        this.props.parentCallbackDraw(this.blockRef.current,e,ref.current,parseFloat(this.handleRef.current.id.split('-')[2]) )
     }
 
-  
+    prova =()=>{console.log('prova')}
 
     getBlockByType(type){     
     const { params, value } = this.state
@@ -87,9 +88,11 @@ class Block extends BlockClass{
                 this.getBlockByType(this.props.block_type)*/}
     }  
 
+ 
+
     renderBlock(type){
         return (
-            <div className={`general-block ${this.props.block_type}`}
+            <div className={`general-block ${this.props.block_type}`}              
                 onClick={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                 onDoubleClick={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                 >
@@ -107,7 +110,7 @@ class Block extends BlockClass{
                             onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                             onClick={e=>{
                                 e.preventDefault();
-                                this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.id.split('-')[2]))
+                                this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
                             }}/>
                         <FaSearch className='fa-icon' onClick={e=>{e.preventDefault();console.log('oo')}}/>
                         <FaEdit className='fa-icon'/>

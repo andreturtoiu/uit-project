@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createRef } from "react";
 import Block from '../draggable-nodes/Block'
 import '../styles/css/homepage.css'
 import { connectElements, deleteArrowById } from '../utils/utils_arrows'
@@ -10,9 +10,10 @@ const DRAG_IDS = DRAG_TYPE.map(x=>Math.random())
 export class DragAndDropZone extends React.Component{
     constructor(props){        
         super(props)
+        DRAG_IDS.map(x=>this[x]=React.createRef()) //Create ref for each block rendered in drag zone
         this.refDropZone = React.createRef()
         this.refDragZone = React.createRef()
-        this.refSvg = React.createRef()
+        this.refSvg = React.createRef()        
         this.state={
             placeHolder:false,
             childrenDragType:DRAG_TYPE,
@@ -36,6 +37,7 @@ export class DragAndDropZone extends React.Component{
     callbackAddtoDrag=(value)=>{
         var childs = this.state.childrenDrag
         childs.push(value)
+        this[value]=React.createRef() //create ref for the new node
         this.setState({childrenDrag:childs})
     }
 
@@ -104,7 +106,7 @@ export class DragAndDropZone extends React.Component{
     }
 
     //Connects two block
-    callbackDraw=(blockRef, button, buttonRef)=>{      
+    callbackDraw=(blockRef, button, buttonRef,id)=>{
         var conn_click = this.state.conn_click        
         var block_click = this.state.conn_blocks
         var button_refs = this.state.button_refs
@@ -191,13 +193,13 @@ export class DragAndDropZone extends React.Component{
         
     }
 
-    getChildNodeRef(item){      
+    getParentNodesRef(item){      
         if(this.state.block_arrows[item]){
             var arrows = this.state.block_arrows[item] //arrows for this node
             var parents = []
             arrows.forEach(a=>{
                 if(item === this.state.arrows_blocks[a][1]) //If item is a childs
-                    parents.push(this.state.blocks_refs[this.state.arrows_blocks[a][0]]) //Get its parent 
+                    parents.push(this[this.state.arrows_blocks[a][0]]) //Get its parent ref
             }) //for each arrow take the child
             return parents
         }
@@ -209,7 +211,8 @@ export class DragAndDropZone extends React.Component{
                 <div id='drag-zone' ref={this.refDragZone}>                    
                 {this.state.childrenDrag.map((item, index) => (
                 <Block                             
-                    id={`start-node-${item}`}                            
+                    id={`start-node-${item}`}
+                    ref={this[item]}
                     block_type={DRAG_TYPE[index]}
                     key={item}
                     dragZone={true}                            
@@ -222,7 +225,8 @@ export class DragAndDropZone extends React.Component{
                     {this.state.childrenDrop.map((item) => (
                         <Block
                             id={`start-node-${item}`}
-                            childsRef={this.getChildNodeRef(item)}
+                            ref={this[item]}
+                            parentRefs={this.getParentNodesRef(item)}
                             block_type={this.state.childrenDropType[item]}
                             parentCallbackRefBlock={this.callbackRefBlock}
                             parentCallbackDeleteDropBlock={this.callbackDeleteDropBlock}
