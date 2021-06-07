@@ -108,12 +108,18 @@ class Block extends BlockClass{
                     <FaTrash className='fa-icon'
                             block_id={this.props.blockRef?this.props.blockRef.id:''}                            
                             onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                             onClick={e=>{
                                 e.preventDefault();
                                 this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
                             }}/>
-                        <FaSearch className='fa-icon' onClick={e=>{e.preventDefault();console.log('oo')}}/>
-                        <FaEdit className='fa-icon'/>
+                        <FaSearch className='fa-icon'
+                            onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onClick={e=>{e.preventDefault();console.log('oo')}}/>
+                        <FaEdit className='fa-icon'
+                        onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                        onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}/>
                     </div>
                 </div>
                 {this.props.block_type!=='END'&&
