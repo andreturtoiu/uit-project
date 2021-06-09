@@ -14,7 +14,7 @@
 
 
 .general-block{
-    width: 9em;
+    width: 10em;
     height: 6em;        
     border: dashed 1px;
     padding-top: 5px;
@@ -26,9 +26,9 @@
 }
 
 
-.conn-btn-top{ transform: rotate(360grad) translateX(-3.9em) translateY(-1em) rotate(-360grad); }
-.conn-btn-bottom{ transform: rotate(360grad) translateX(4.5em) translateY(0.2em) rotate(360grad);}
-.conn-btn-begin-bottom{ transform: rotate(360grad) translateX(3.6em) translateY(1em) rotate(360deg);}
+.conn-btn-top{ transform: rotate(360grad) translateX(-4.3em) translateY(-1.5em) rotate(-360grad); width: 1.6em; height: 1.6em; }
+.conn-btn-bottom{ transform: rotate(360grad) translateX(5em) translateY(0) rotate(360grad); width: 1.6em; height: 1.6em; }
+.conn-btn-begin-bottom{ transform: rotate(360grad) translateX(4.3em) translateY(1.4em) rotate(360deg); width: 1.6em; height: 1.6em; }
 /*.conn-btn-begin-bottom{ transform: rotate(-90deg) translate(-1em) rotate(90deg);}*/
 
 .fa-icon{color:white}

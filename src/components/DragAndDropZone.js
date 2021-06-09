@@ -251,8 +251,7 @@ export class DragAndDropZone extends React.Component{
         }
     }
 
-    deleteArrow(arrow){
-                
+    deleteArrow(arrow){                
         var new_state = deleteArrowById(
             arrow,
             this.state.arrows,
@@ -275,9 +274,14 @@ export class DragAndDropZone extends React.Component{
         return []
     }
 
-    openModalOnHomePage = (callerRef, params, setParams) =>{
-        this.props.parentCallbackOpenModal(this[callerRef], params, setParams)
+    openParamsModalOnHomePage = (callerRef, params, setParams) =>{
+        this.props.parentCallbackOpenParamsModal(this[callerRef], params, setParams)
     } 
+
+    openGraphModalOnHomePage = (callerRef, params, setParams) =>{
+        this.props.parentCallbackOpenGraphModal(this[callerRef], params, setParams)
+    } 
+
 
     render(){
         return(<>
@@ -311,7 +315,8 @@ export class DragAndDropZone extends React.Component{
                             parentCallbackDeleteDropBlock={this.callbackDeleteDropBlock}
                             parentCallbackDraw = {this.callbackDraw}
                             parentCallbackOnMove = {this.callbackOnMove}
-                            parentCallbackOpenModal = {this.openModalOnHomePage}
+                            parentCallbackOpenParamsModal = {this.openParamsModalOnHomePage}
+                            parentCallbackOpenGraphModal = {this.openGraphModalOnHomePage}
                             style_block={{transform:this.state.dropStyle[item], position:'fixed'}}
                             key={item}
                             dragZone={false}/>

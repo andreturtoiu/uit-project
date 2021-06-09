@@ -46,7 +46,7 @@ class Block extends BlockClass{
     }
 
     getParentParams = () => {
-        console.log("PARENT REFS", this.props.parentRefs)
+        //console.log("PARENT REFS", this.props.parentRefs)
         if(this.props.parentRefs){
             return this.props.parentRefs.map(p => p.current.getParams())
         }
@@ -58,11 +58,11 @@ class Block extends BlockClass{
     syncParamsFromParent = () => {
         const parent_params = this.getParentParams()[0]
         var {params} = this.state
-        console.log("CALLING SYNCPARAMS", params, parent_params)
+        //console.log("CALLING SYNCPARAMS", params, parent_params)
         if(!params || !parent_params){
             return
         }
-        console.log("SYNCED PARAMS")
+       // console.log("SYNCED PARAMS")
         params.labels = params.labels.filter(l => parent_params.labels.some(pl => pl === l))
         this.setParams(params)
     }
@@ -84,7 +84,7 @@ class Block extends BlockClass{
     prova =()=>{console.log('chiamato da HomePage: prova')}
 
     getParentValues = () => {
-        console.log("PARENT REFS", this.props.parentRefs)
+        //console.log("PARENT REFS", this.props.parentRefs)
         if(this.props.parentRefs){
             return this.props.parentRefs.map(p => p.current.getValue())
         }
@@ -92,9 +92,10 @@ class Block extends BlockClass{
             return []
         }
     }
+    
     getValue = () => {
         const parent_values = this.getParentValues()
-        console.log("PARENT VALUES", parent_values)
+        //console.log("PARENT VALUES", parent_values)
         if(!parent_values){
             return []
         }
@@ -122,6 +123,14 @@ class Block extends BlockClass{
         this.setState({params: params})
     }
 
+    showGraph = () => {
+        console.log(this.getValue())
+    }
+
+    showParams = () => {
+        console.log(this.state.params)
+    }
+
     renderBlock(type){
         return (
             <div className={`general-block ${this.props.block_type}`}              
@@ -137,7 +146,7 @@ class Block extends BlockClass{
                 <div>
                     <p style={{fontSize:'0.9em', fontWeight:900, color:'white'}}>{this.props.block_type}</p>
                     <div style={{display:'flex', justifyContent:'space-around'}}>
-                    <FaTrash className='fa-icon'
+                        <FaTrash className='fa-icon'
                             block_id={this.props.blockRef?this.props.blockRef.id:''}                            
                             onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                             onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
@@ -148,14 +157,22 @@ class Block extends BlockClass{
                         <FaSearch className='fa-icon'
                             onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                             onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                            onClick={e=>{e.preventDefault();console.log(this.getValue())}}/>
+                            onMouseOver={e=>{
+                                e.stopPropagation(); 
+                                e.nativeEvent.stopImmediatePropagation(); 
+                                this.showParams();
+                            }}
+                            onClick={e=>{
+                                e.preventDefault(); 
+                                this.props.parentCallbackOpenGraphModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
+                                }}/>
                         <FaEdit className='fa-icon'
                         onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                         onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                         onClick={e=>{
                             e.preventDefault(); 
                             this.syncParamsFromParent()
-                            this.props.parentCallbackOpenModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
+                            this.props.parentCallbackOpenParamsModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
                             }}
                         />
                     </div>

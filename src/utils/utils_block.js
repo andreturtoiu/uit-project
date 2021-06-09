@@ -40,7 +40,7 @@ export function checkBlocksAlreadyConnected(block_arrows,  block1, block2){
  * @param {*} id_block 
  * @returns new state of inputs
  */
-export function deleteArrowsConnectingBlock(arrows, block_arrows, arrows_blocks, id_block){   
+export function deleteArrowsConnectingBlock(arrows, block_arrows, arrows_blocks, id_block){  
     var lines = block_arrows[id_block]//pick the lines to delete    
     var new_arrows = {}, new_arrows_blocks = {}
     var new_blocks = {} //block1:[line1,line2]
@@ -52,19 +52,21 @@ export function deleteArrowsConnectingBlock(arrows, block_arrows, arrows_blocks,
         Object.keys(block_arrows).forEach(block=>{
             if(block !== id_block.toString()){
                 //each block's list of lines -> block1:[line1,line2] 
-                var app_lines = block_arrows[block].filter(x=>x===parseFloat(line))
-                if(app_lines.length>0)
-                    new_blocks[block] = app_lines
+                var app_line = block_arrows[block].filter(x=>x===parseFloat(line))                
+                if(!Object.keys(new_blocks).includes(block))
+                    new_blocks[block] = []
+                if(app_line[0])
+                    new_blocks[block].push(app_line[0])                
             }
         })
         Object.keys(arrows_blocks).forEach(arrow=>{
             if(line.toString()===arrow)
                 new_arrows_blocks[arrow]=arrows_blocks[arrow]        
         })
-    })    
-    
+    })      
     k_arrows_filtered.forEach(k=>{new_arrows[k]=arrows[k]}) //Deleted the line 
     return {arrows:new_arrows, block_arrows: new_blocks, arrows_blocks: new_arrows_blocks}
 
 }
+
 
