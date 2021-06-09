@@ -1,4 +1,4 @@
-import { Button } from 'react-bootstrap';
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 import React from 'react';
 import BlockClass from './BlockClass';
 import { FaTrash, FaSearch, FaEdit } from 'react-icons/fa';
@@ -92,7 +92,7 @@ class Block extends BlockClass{
             return []
         }
     }
-    
+
     getValue = () => {
         const parent_values = this.getParentValues()
         //console.log("PARENT VALUES", parent_values)
@@ -131,6 +131,19 @@ class Block extends BlockClass{
         console.log(this.state.params)
     }
 
+    renderTooltip = (props) => (        
+        <Tooltip id="button-tooltip" {...props}>
+          <div className='tooltip-div'>
+            {this.state.params&&
+                <div>
+                    <h5>Setted params</h5>
+                    <p>Click on magnifying glass button to see more</p>
+                </div>}
+            {this.state.params&&<p>Setted params</p>}
+          </div>
+        </Tooltip>
+      );
+
     renderBlock(type){
         return (
             <div className={`general-block ${this.props.block_type}`}              
@@ -154,6 +167,11 @@ class Block extends BlockClass{
                                 e.preventDefault();
                                 this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
                             }}/>
+                        <OverlayTrigger
+                            placement="right"
+                            delay={{ show: 250, hide: 400 }}
+                            overlay={this.renderTooltip}
+                        >
                         <FaSearch className='fa-icon'
                             onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                             onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
@@ -166,6 +184,7 @@ class Block extends BlockClass{
                                 e.preventDefault(); 
                                 this.props.parentCallbackOpenGraphModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
                                 }}/>
+                        </OverlayTrigger>
                         <FaEdit className='fa-icon'
                         onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                         onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}

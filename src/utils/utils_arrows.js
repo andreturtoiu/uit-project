@@ -6,15 +6,23 @@ import React from "react"
  * @param {*} endElem 
  * @returns 
  */
-export function connectElements(startElem,endElem,drop){        
+export function connectElements(startElem,endElem,drop){ 
     var leftOffset = drop.current.offsetLeft
     var startCoordLeft = startElem.clientX-leftOffset
     var startCoordTop = startElem.clientY
-    var endCoordLeft = endElem.clientX-leftOffset
+    var endCoordLeft = endElem.clientX-leftOffset -35
     var endCoordTop = endElem.clientY
     return {x1:startCoordLeft, y1:startCoordTop, x2:endCoordLeft, y2:endCoordTop}
 }
 
+
+export function getFirstPositionArrow(startElem,drop){
+    var leftOffset = drop.current.offsetLeft
+    var startCoordLeft = startElem.clientX-leftOffset
+    var startCoordTop = startElem.clientY
+    return {x1:startCoordLeft, y1:startCoordTop}
+    
+}
 
 /**
  * Deletes arrows when user clicks on arrow

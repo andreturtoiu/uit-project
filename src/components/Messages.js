@@ -7,7 +7,7 @@ export default function Messages(props){
         <div className='messages-zone' style={{display:'flex', flexDirection:'column'}} ref={props.inner}>
             
             {props.messages&&
-                props.messages.map((message) => <p className='message' style={{color:message[1]==='error'? 'red':'black'}}>{message[0]}</p>)}                
+                props.messages.map((message) => <p key={Math.random()} className='message' style={{color:message[1]==='error'? 'red':'black'}}>{message[0]}</p>)}                
         </div>
         </div>
     )

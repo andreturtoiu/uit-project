@@ -1,7 +1,7 @@
 import React, { createRef } from "react";
 import Block from '../draggable-nodes/Block'
 import '../styles/css/homepage.css'
-import { connectElements, deleteArrowById } from '../utils/utils_arrows'
+import { connectElements, deleteArrowById, getFirstPositionArrow, setMousePosition } from '../utils/utils_arrows'
 import { checkBlocksAlreadyConnected, deleteArrowsConnectingBlock } from '../utils/utils_block'
 import Messages from "./Messages";
 
@@ -30,9 +30,9 @@ export class DragAndDropZone extends React.Component{
             arrows: {}, //arrows to render
             block_arrows:{},//each block refered to his line {block1: [linea1, linea3], block2:[linea1]}
             arrows_blocks:{},//each line refered to connecting block linea1:[block1, block2]
-            arrows_blocks_refs:{}, 
-            messages: []          
-            
+            arrows_blocks_refs:{},
+            x1:0, x2:0, y1:0, y2:0,
+            messages: []
         }
     }
 
@@ -149,6 +149,7 @@ export class DragAndDropZone extends React.Component{
         }, 2000);
     }
 
+
     //Connects two block
     callbackDraw=(blockRef, button, buttonRef)=>{
         var date = new Date()
@@ -161,7 +162,9 @@ export class DragAndDropZone extends React.Component{
             conn_click.push(button)
             block_click.push(blockRef)
             button_refs.push(buttonRef)
-        }else if(conn_click.length===1 && conn_click.length<2){ //1 Block
+            const pos_arrow_1 = getFirstPositionArrow(button, this.refDropZone)
+            this.setState({firstClick:true, x1:pos_arrow_1.x1, y1:pos_arrow_1.y1})
+        }else if(conn_click.length===1 && conn_click.length<2){ //1 Block     
             conn_click.push(button)
             block_click.push(blockRef)
             button_refs.push(buttonRef)        
@@ -170,7 +173,7 @@ export class DragAndDropZone extends React.Component{
                 messages.push([
                 date.toLocaleTimeString() + 
                 ': You are trying to connect the same block.', 'error'])                
-                this.setState({conn_click:[], conn_blocks: [], button_refs:[], messages:messages})
+                this.setState({conn_click:[], conn_blocks: [], button_refs:[], messages:messages, firstClick:false})
                 
             }else{  //TWO DIFFERENT BLOCK CLICKED
                 //check if there is already an arrow between these blocks
@@ -194,22 +197,25 @@ export class DragAndDropZone extends React.Component{
                                     [date.toLocaleTimeString() + 
                                     ': Just the MERGE block allows multiple input connections.', 
                                     'error'])
-                                this.setState({messages:messages})
+                                this.setState({messages:messages, firstClick:false})
                             } 
                         }
+                        this.setState({
+                            x2:0, y2:0,
+                            firstClick:false})
                     }
                     else{
                         this.changeColor(button_refs[0],button_refs[1])
                         messages.push(
                             [date.toLocaleTimeString() + 
                             ': You are trying to connect input and outputs buttons ', 'error'])
-                        this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages})}
+                        this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages, firstClick:false})}
                 }else{
                     this.changeColor(button_refs[0],button_refs[1])
                     messages.push(
                         [date.toLocaleTimeString() + 
                         ': Blocks already connected ', 'error'])
-                    this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages})
+                    this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages, firstClick:false})
                 }
             }
         }else{ //there are already two clicks, refresh state
@@ -219,7 +225,7 @@ export class DragAndDropZone extends React.Component{
             block_click.push(blockRef)
             button_refs=[]
             button_refs.push(buttonRef)
-            this.setState({conn_click:conn_click, conn_blocks:block_click, button_refs:button_refs})
+            this.setState({conn_click:conn_click, conn_blocks:block_click, button_refs:button_refs, firstClick:false})
         }     
     }
 
@@ -241,7 +247,8 @@ export class DragAndDropZone extends React.Component{
                         arrow.y1 = transform[1] + ref.clientHeight/2
                     }else{//otherwise block 2 of the arrow is moving
                         button_ref = arrows_refs[arrow_id][1]
-                        arrow.x2 = transform[0] - button_ref.offsetWidth
+                        console.log(button_ref)
+                        arrow.x2 = transform[0] - button_ref.offsetWidth - button_ref.clientWidth+25
                         arrow.y2 = transform[1] + ref.clientHeight/2 
                     }
                     arrows[arrow_id] = arrow
@@ -282,6 +289,23 @@ export class DragAndDropZone extends React.Component{
         this.props.parentCallbackOpenGraphModal(this[callerRef], params, setParams)
     } 
 
+  
+    onMouseMove=(e)=>{            
+        e.preventDefault()
+        if(this.state.firstClick){
+            this.setState({x2:e.clientX - this.refDragZone.current.clientWidth, y2:e.clientY})
+        }
+    }
+
+    onClickSvg=(e)=>{
+        e.preventDefault()
+        this.setState({
+            x2:0, y2:0,
+            button_refs:[],
+            conn_click:[],
+            conn_blocks:[],
+            firstClick:false})
+    }
 
     render(){
         return(<>
@@ -304,7 +328,7 @@ export class DragAndDropZone extends React.Component{
                     </div>
                     <Messages inner={this.messages} messages={this.state.messages}/>
                 </div>
-                <div id='drop-zone' ref={this.refDropZone}>                    
+                <div id='drop-zone' ref={this.refDropZone}>
                     {this.state.childrenDrop.map((item) => (
                         <Block
                             id={`start-node-${item}`}
@@ -321,10 +345,17 @@ export class DragAndDropZone extends React.Component{
                             key={item}
                             dragZone={false}/>
                     ))}
-                     <svg width='100%' height='100%' ref={this.refSvg} className='svg-container'>
+                     <svg width='100%'height='100%' ref={this.refSvg} className='svg-container'
+                      onClick={e=>this.onClickSvg(e)}
+                      onMouseMove={e=>this.onMouseMove(e)}
+                      >
                      <defs>
-                        <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7"
                         refX="0" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" />
+                        </marker>
+                        <marker id="arrowhead2" markerWidth="10" markerHeight="7"
+                        refX="0" refY="3.5" orient="auto" fill='#b5b7ba' stroke='#b5b7ba'>
                         <polygon points="0 0, 10 3.5, 0 7" />
                         </marker>
                     </defs>
@@ -348,6 +379,19 @@ export class DragAndDropZone extends React.Component{
                             strokeWidth='2.5'
                             markerEnd={`url(#arrowhead)`}/>
                         ))}
+                        {this.state.firstClick&&this.state.x1&&this.state.x2&&this.state.y1&&this.state.y2&&
+                        <line
+                            className='arrow-temp'
+                            stroke-dasharray="4"
+                            key={Math.random()}                           
+                            stroke='#b5b7ba'
+                            x1={this.state.x1} 
+                            y1={this.state.y1}
+                            x2={this.state.x2}
+                            y2={this.state.y2}
+                            strokeWidth='2.5'
+                            markerEnd={`url(#arrowhead2)`}/>
+                        }
                         <text style={this.state.text_line_style} x={this.state.left_text} y={this.state.top_text}>Click to delete</text>
                     </svg>
                 </div>

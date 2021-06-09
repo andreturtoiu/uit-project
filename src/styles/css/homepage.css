@@ -46,3 +46,9 @@
     text-align: start;
     margin-left: 1em;
 }
+
+.tooltip-div{
+    background-color: white;
+    color: black;
+}
+
