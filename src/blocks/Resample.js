@@ -1,35 +1,49 @@
 import { FaTrash } from 'react-icons/fa';
 import ConnectButton, { connectButton } from './utils';
 import { Button, Form, Col, Row } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
 
 export default function Resample(props){
-  const callbackDraw=(e)=> {
-    props.parentCallbackDraw(e)
-  }     
-console.log(props)
-  return(
+  
+  const [sample, setSample] = useState(props.currParams.sample)
+  const [stat, setStat] = useState(props.currParams.resampleFun)
+
+  useEffect(() => {
+      props.paramsCallBack({'sample': sample, 'resampleFun': stat})
+  }, []);
+
+  const onChangeSample = (event) => {
+      setSample(event.target.value)
+      props.paramsCallBack({'sample': event.target.value, 'resampleFun': stat})
+  }
+
+  const onChangeStat = (event) => {
+      setStat(event.target.value)
+      props.paramsCallBack({'sample': sample, 'resampleFun': event.target.value})
+  }
+  
+  const renderSelectionSample = () => {
+      const samples = ["year", "month", "day", "hour", "minute"]
+      return <select id="dropdownSample" onChange={onChangeSample} defaultValue={sample}>
+          {samples.map((s) => <option value={s}>{s}</option>)}
+      </select>
+  }
+
+  const renderSelectionStat = () => {
+      const stats = ['sum','min','max','mean']
+      return <select id="dropdownStat" onChange={onChangeStat} defaultValue={stat}>
+          {stats.map((s) => <option value={s}>{s}</option>)}
+      </select>
+  }
+
+  return (
     <div className='block-div-agg'>      
-    <ConnectButton cssStyle='conn-btn-agg-top' parentCallbackDraw={callbackDraw}/>
-    <div>      
-      <Button
-          block_id={props.blockRef?props.blockRef.id:''}
-          variant="light"
-          style={{marginTop:0}}
-          onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-          onClick={e=>{
-            e.preventDefault();
-            props.parentCallbackTrash()
-          }
-          }><FaTrash className='fa-trash'/>
-      </Button>
-      <p>Resample by</p>
-      <div>
-        <select id = "dropdown" defaultValue={'day'}>
-          {["year", "month", "day", "hour", "minute"].map((fun) => <option value={fun}>{fun}</option>)}
-        </select>
+          <p>Resample</p>
+          {renderSelectionSample()}
+          {renderSelectionStat()}
       </div>
-  </div>
-      <ConnectButton cssStyle='conn-btn-agg-bottom' parentCallbackDraw={callbackDraw}/>
-  </div>)
+  )
+  
+  
 
 }

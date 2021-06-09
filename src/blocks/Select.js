@@ -2,45 +2,51 @@ import { FaTrash } from 'react-icons/fa';
 import ConnectButton, { connectButton } from './utils';
 import { Button, Form, Col, Row } from 'react-bootstrap';
 import { useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function Select(props){
-  const top_button = useRef(null)
-  const bottom_button = useRef(null)
-  
-  const callbackDraw=(e, ref)=> {        
-    props.parentCallbackDraw(e,ref.current)
-  }     
-  return(
-    <div className='block-div-agg'>      
-    <ConnectButton childComponentRef={top_button} cssStyle='conn-btn-agg-top' parentCallbackDraw={callbackDraw}/>
-    <div>
+export default function Select(props) {
+  const [labels, setLabels] = useState(props.currParams.labels)
+
+  useEffect(() => {
+    props.paramsCallBack({'labels': labels})
+  }, []);
+
+  const handleChange = (event) => {
+    console.log("ON CHANGE", event)
+    const col = event.target.name
+    var newLabels = labels
+    if (!labels.some((label) => label === col)) {
+      newLabels = [...newLabels, col]
+    }
+    else if (col !== 'date' && labels.some((label) => label === col)) {
+      newLabels = newLabels.filter((label) => label !== col)
+    }
+    setLabels(newLabels)
+    props.paramsCallBack({'labels': newLabels})
+  }
+  return (
+    <div className='block-div-agg'>
+
       <p>Select columns</p>
-      <Button
-          block_id={props.blockRef?props.blockRef.id:''}
-          variant="light"
-          style={{marginTop:0}}
-          onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-          onClick={e=>{
-            e.preventDefault();
-            props.parentCallbackTrash()
-          }
-          }><FaTrash className='fa-trash'/>
-      </Button>
-    <Form>
-    <div className='row' style={{justifyContent:'space-between', marginTop:'1rem'}}>
-    {['x', 'y','z', 'w'].map((type) => (
-      <div key={`default-${type}`} className="mb-3">
-        <Form.Check 
-          type={'checkbox'}
-          id={`default-${type}`}
-          label={type}
-        />
-      </div>
-    ))}
-    </div>
-  </Form>
-  </div>
-      <ConnectButton childComponentRef={bottom_button} cssStyle='conn-btn-agg-bottom' parentCallbackDraw={callbackDraw}/>
-  </div>)
+      <Form>
+        <div className='row' style={{ justifyContent: 'space-between', marginTop: '1rem' }}>
+          {props.value.listColumns().filter((label) => label !== 'date').map((col) => (
+            <div key={`default-${col}`} className="mb-3">
+              <Form.Check
+                type={'checkbox'}
+                id={`default-${col}`}
+                label={col}
+                name={col}
+                defaultChecked={labels.some((label)=> label === col)}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+        </div>
+
+      </Form>
+
+
+    </div>)
 
 }

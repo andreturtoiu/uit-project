@@ -1,15 +1,15 @@
 .start-node-drag{
     width: 10rem;
     height: 3rem;
-    margin-left: 1em;
+    margin-left: auto;
+    margin-right: auto;
     cursor: pointer;
     touch-action: none;
     user-select: none;   
 }
 .start-node-drop{
-    position: absolute;
     touch-action: none;
-    user-select: none; 
+    user-select: none;
 }
 
 
@@ -26,11 +26,10 @@
 }
 
 
-.conn-btn-top{ transform: rotate(90deg) translate(-1em) rotate(-90deg); }
-.conn-btn-top-2{ transform: rotate(360grad) translate(-4.5em) rotate(-360grad); }
-.conn-btn-bottom-2{ transform: rotate(360grad) translate(4.5em) rotate(360grad);}
-.conn-btn-bottom{ transform: rotate(-90deg) translate(0) rotate(90deg);}
-.conn-btn-begin-bottom{ transform: rotate(-90deg) translate(-1em) rotate(90deg);}
+.conn-btn-top{ transform: rotate(360grad) translateX(-3.9em) translateY(-1em) rotate(-360grad); }
+.conn-btn-bottom{ transform: rotate(360grad) translateX(4.5em) translateY(0.2em) rotate(360grad);}
+.conn-btn-begin-bottom{ transform: rotate(360grad) translateX(3.6em) translateY(1em) rotate(360deg);}
+/*.conn-btn-begin-bottom{ transform: rotate(-90deg) translate(-1em) rotate(90deg);}*/
 
 .fa-icon{color:white}
 

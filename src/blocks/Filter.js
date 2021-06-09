@@ -1,46 +1,48 @@
 import { FaTrash } from 'react-icons/fa';
 import ConnectButton, { connectButton } from './utils';
 import { Button, Form, Col, Row } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
 
-export default function Filter(props){
-  const callbackDraw=(e)=> {
-    props.parentCallbackDraw(e)
-  }     
+export default function Filter(props) {
 
-  return(
-    <div className='block-div-filter'>      
-    <ConnectButton cssStyle='conn-btn-filter-top' parentCallbackDraw={callbackDraw}/>
+  const [begin, setBegin] = useState(props.currParams.begin)
+  const [end, setEnd] = useState(props.currParams.end)
+
+  useEffect(() => {
+    props.paramsCallBack({ 'begin': begin, 'end': end })
+  }, [begin, end]);
+  //}, [props]);
+
+  const onChangeBegin = (event) => setBegin(event.target.value)
+  const onChangeEnd = (event) => setEnd(event.target.value)
+
+
+  return (
+    <div className='block-div-filter'>
+
       <div>
-        <Button
-            variant="light"
-            onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-            onClick={e=>{
-              e.preventDefault();
-              props.parentCallbackTrash()
-            }
-            }><FaTrash className='fa-trash'/>
-        </Button>
-        <Form style={{width:'15rem'}}>
+        <Form style={{ width: '15rem' }}>
           <Form.Group as={Row} controlId="formPlaintextEmail">
             <Form.Label column sm="2">
               From
             </Form.Label>
             <Col sm="10">
-            <Form.Control type="date" name="dob" placeholder="From" />
-          </Col>
-        </Form.Group>
+              <Form.Control type="date" name="dob" placeholder="From" 
+              onChange={onChangeBegin} defaultValue={begin}/>
+            </Col>
+          </Form.Group>
 
-        <Form.Group as={Row} controlId="formPlaintextPassword">
-          <Form.Label column sm="2">
-            To
+          <Form.Group as={Row} controlId="formPlaintextPassword">
+            <Form.Label column sm="2">
+              To
           </Form.Label>
-          <Col sm="10">
-            <Form.Control type="date" name="dob" placeholder="From" />
-          </Col>
+            <Col sm="10">
+              <Form.Control type="date" name="dob" placeholder="To" 
+              onChange={onChangeEnd} defaultValue={end}/>
+            </Col>
           </Form.Group>
         </Form>
       </div>
-      <ConnectButton cssStyle='conn-btn-filter-bottom' parentCallbackDraw={callbackDraw}/>
-  </div>)
+    </div>)
 
 }

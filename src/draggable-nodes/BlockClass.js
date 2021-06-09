@@ -7,7 +7,7 @@ import { getStyle } from '../blocks/utils';
 class BlockClass extends React.Component {
     constructor(props){        
         super(props); 
-        this.handleRef = React.createRef()
+        this.handleRef = React.createRef()        
     }
     //setHandleRef = ref => {this.handleRef = ref;}
       
@@ -18,10 +18,11 @@ class BlockClass extends React.Component {
         const {target, clientX, clientY} = event; //position of pointer inside the box relative to the view    
         const { offsetTop, offsetLeft } = target; //the start position of the box relative to the view
         const { left, top } = this.handleRef.current.getBoundingClientRect(); //position of the box relative to the view - changes
+        this.drop = document.getElementById('drop-zone') //drag-zone
         this.dragStartLeft = left - offsetLeft;
         this.dragStartTop = top - offsetTop;
         this.dragStartX = clientX;
-        this.dragStartY = clientY;
+        this.dragStartY = clientY;        
         if(!this.props.dragZone){ //Drop area
             this.props.parentCallbackRefBlock(this.handleRef.current)
         } 
@@ -35,13 +36,14 @@ class BlockClass extends React.Component {
     * Avoid blocks to go out of drag-zone
     */  
     checkBoundingMove(x,y){
-        var drop = document.getElementById('drop-zone') //drag-zone
+        var drop = this.drop
         var bounding = this.handleRef.current.getBoundingClientRect()
         var left = bounding.left
         var right = bounding.right    
         var top = bounding.top
         var bottom = bounding.bottom
         var offsetRight = drop.offsetWidth+drop.offsetLeft
+        
         if(!this.props.dragZone ){           
             if(left<drop.offsetLeft) //Left border of drop-zone
                 this.handleRef.current.style.transform = `translate(${x+(drop.offsetLeft+10-left)}px, ${y}px)`
@@ -59,30 +61,32 @@ class BlockClass extends React.Component {
                 this.handleRef.current.style.transform = `translate(${x+(drop.offsetLeft+10-left)}px, ${y+(drop.offsetHeight-bottom-20)}px)`
             if(bottom>drop.offsetHeight&&right>offsetRight) //Bottom-right
             this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y+(drop.offsetHeight-bottom-20)}px)`            
-            this.props.parentCallbackOnMove(parseTransform(this.handleRef.current.style.transform))
+            this.props.parentCallbackOnMove(parseTransform(this.handleRef.current.style.transform), this.handleRef.current)
         }    
     }
 
     //moves block on mouse move
     handleMouseMove = ({ clientX, clientY }) => {
-        var x = this.dragStartLeft + clientX - this.dragStartX
-        var y = this.dragStartTop + clientY - this.dragStartY    
-        this.handleRef.current.style.transform = `translate(${x}px, ${y}px)`;
+        if(!this.props.dragZone)
+            var x = this.dragStartLeft + clientX - this.dragStartX - this.drop.offsetLeft
+        else x = this.dragStartLeft + clientX - this.dragStartX
+        var y = this.dragStartTop + clientY - this.dragStartY
+        this.handleRef.current.style.transform = `translate(${x}px, ${y}px)`;       
         this.checkBoundingMove(x,y)
     }
 
     handleMouseUp = (ev) => {
-        const dragZone = document.getElementById('drag-zone')    
+        const dragZone = document.getElementById('drag-zone')        
         const dragZoneWidht = dragZone.clientWidth           
         if(this.props.dragZone){
             if(ev.clientX>dragZoneWidht){
-                var x_y = parseTransform(this.handleRef.current.style.transform)
+                var x_y = parseTransform(this.handleRef.current.style.transform)                
                 // x - offset of the drag zone - avoids translate into drop zone from x_start_drop + x_offset_drag
-                var style = `translate(${x_y[0]-dragZone.offsetWidth+10}px, ${x_y[1]}px)`
-                //Pass style because it lost the ref to this div and create a new one that should have same style
-                this.props.parentCallbackAttachToDrop(parseFloat(this.handleRef.current.id.split('-')[2]), style, this.props.block_type)
+                var style = `translate(${ev.clientX-dragZone.offsetWidth}px, ${ev.clientY}px)`
+                //Pass style because it lost the ref to this div and create a new one that should have same style                       
+                this.props.parentCallbackAttachToDrop(parseFloat(this.handleRef.current.id.split('-')[2]), style, this.props.block_type)                
             }else this.props.parentCallbackDeleteDragBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
-        }       
+        }
         window.removeEventListener('mousemove', this.handleMouseMove, false)
         window.removeEventListener('mouseup', this.handleMouseUp, false)
     }  
@@ -98,6 +102,7 @@ class BlockClass extends React.Component {
             id={this.props.id}
             key={this.props.key}
             block_type = {this.props.block_type}
+            style={this.props.style_block}
             className={`${this.props.dragZone? ('start-node-drag '+ this.props.block_type): 'start-node-drop'}`}
             onMouseDown={e=>this.handleMouseDown(e)}
             ref={this.handleRef}>
