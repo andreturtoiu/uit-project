@@ -49,11 +49,11 @@ export function deleteArrowsConnectingBlock(arrows, block_arrows, arrows_blocks,
         k_arrows_filtered = k_arrows_filtered.filter(x=>x!==line.toString())
     })
     k_arrows_filtered.forEach(line=>{
-        Object.keys(block_arrows).forEach(block=>{
+        Object.keys(block_arrows).forEach(block=>{            
             if(block !== id_block.toString()){
                 //each block's list of lines -> block1:[line1,line2] 
                 var app_line = block_arrows[block].filter(x=>x===parseFloat(line))                
-                if(!Object.keys(new_blocks).includes(block))
+                if(!Object.keys(new_blocks).includes(block.toString()))
                     new_blocks[block] = []
                 if(app_line[0])
                     new_blocks[block].push(app_line[0])                
@@ -63,7 +63,7 @@ export function deleteArrowsConnectingBlock(arrows, block_arrows, arrows_blocks,
             if(line.toString()===arrow)
                 new_arrows_blocks[arrow]=arrows_blocks[arrow]        
         })
-    })      
+    })  
     k_arrows_filtered.forEach(k=>{new_arrows[k]=arrows[k]}) //Deleted the line 
     return {arrows:new_arrows, block_arrows: new_blocks, arrows_blocks: new_arrows_blocks}
 

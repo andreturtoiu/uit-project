@@ -39,14 +39,16 @@ export function deleteArrowById(arrow, arrows, arrows_blocks, block_arrows){
         new_arrows_block[key] = arrows_blocks[key]
         new_arrows[key]=arrows[key]
     })
-    Object.keys(block_arrows).forEach(block=>{
-        var app=block_arrows[block].filter(x=>x!==arrow)
+    Object.keys(block_arrows).forEach(block=>{    
+        var app=block_arrows[block].filter(x=>x!==parseFloat(arrow))
+        console.log(typeof block_arrows[block][0], typeof app[0])
         new_block_arrows[block]=app
     })
+
     return {
         arrows: new_arrows,
         arrows_blocks: new_arrows_block,
-        block_arrows: new_arrows_block
+        block_arrows: new_block_arrows
     }
 }
 

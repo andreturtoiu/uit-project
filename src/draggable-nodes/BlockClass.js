@@ -43,7 +43,6 @@ class BlockClass extends React.Component {
     }
 
     checkBoundingMovePosition(x,y, parent){
-        console.log('parent', parent)
         var bounding = this.handleRef.current.getBoundingClientRect()
         var left = bounding.left
         var right = bounding.right    

@@ -240,7 +240,6 @@ export class DragAndDropZone extends React.Component{
                         arrow.y1 = transform[1] + ref.clientHeight/2
                     }else{//otherwise block 2 of the arrow is moving
                         button_ref = arrows_refs[arrow_id][1]
-                        console.log(button_ref)
                         arrow.x2 = transform[0] - button_ref.offsetWidth - button_ref.clientWidth+25
                         arrow.y2 = transform[1] + ref.clientHeight/2 
                     }
@@ -265,7 +264,7 @@ export class DragAndDropZone extends React.Component{
         if(this.state.block_arrows[item]){
             var arrows = this.state.block_arrows[item] //arrows for this node
             var parents = []
-            arrows.forEach(a=>{
+            arrows.forEach(a=>{                
                 if(item === this.state.arrows_blocks[a][1]) //If item is a childs
                     parents.push(this[this.state.arrows_blocks[a][0]]) //Get its parent ref
             }) //for each arrow take the child
