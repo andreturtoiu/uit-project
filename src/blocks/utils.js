@@ -8,7 +8,7 @@ export default function ConnectButton(props){
           ref = {props.childComponentRef}
           type= {props.position}
           variant="outline-primary"
-          className={`btn btn-info p-2 rounded-circle btn-lg ${props.cssStyle}`}
+          className={`btn btn-light p-2 rounded-circle btn-lg ${props.cssStyle}`}
           id={Math.random()}
           onMouseDown={e=>{e.stopPropagation();e.nativeEvent.stopImmediatePropagation();        
           }}

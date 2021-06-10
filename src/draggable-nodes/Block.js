@@ -149,13 +149,7 @@ class Block extends BlockClass{
             <div className={`general-block ${this.props.block_type}`}              
                 onClick={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                 onDoubleClick={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                >
-                {this.props.block_type!=='BEGIN'&&
-                <ConnectButton 
-                    position='top'
-                    cssStyle='conn-btn-top'
-                    childComponentRef={this.top_button}
-                    parentCallbackDraw={this.drawCallback}/>}
+                >                
                 <div>
                     <p style={{fontSize:'0.9em', fontWeight:900, color:'white'}}>{this.props.block_type}</p>
                     <div style={{display:'flex', justifyContent:'space-around'}}>
@@ -196,10 +190,22 @@ class Block extends BlockClass{
                         />
                     </div>
                 </div>
+                {this.props.block_type!=='BEGIN'&& this.props.block_type!=='END' && 
+                <ConnectButton 
+                    position='top'
+                    cssStyle='conn-btn-top'
+                    childComponentRef={this.top_button}
+                    parentCallbackDraw={this.drawCallback}/>}
                 {this.props.block_type!=='END'&&
                 <ConnectButton 
                     position='bottom'                    
                     cssStyle={`${this.props.block_type!=='BEGIN' ? 'conn-btn-bottom' : 'conn-btn-begin-bottom'}`}
+                    childComponentRef={this.bottom_button}
+                    parentCallbackDraw={this.drawCallback}/>}
+                {this.props.block_type==='END'&&
+                <ConnectButton 
+                    position='bottom'                    
+                    cssStyle='conn-btn-end-top'
                     childComponentRef={this.bottom_button}
                     parentCallbackDraw={this.drawCallback}/>}
             </div>

@@ -74,7 +74,7 @@ export function changeColor(ref1, ref2=undefined){
     ref1.style.backgroundColor='red'
     ref2.style.backgroundColor='red'
     setTimeout(function(){
-        ref1.style.backgroundColor='#007bff'
-        ref2.style.backgroundColor='#007bff'            
+        ref1.style.backgroundColor='white'
+        ref2.style.backgroundColor='white'
     }, 2000);
 }

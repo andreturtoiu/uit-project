@@ -32,8 +32,9 @@
 }
 
 
-.conn-btn-top{ transform: rotate(360grad) translateX(-4em) translateY(-1.5em) rotate(-360grad); width: 1.6em; height: 1.6em; }
-.conn-btn-bottom{ transform: rotate(360grad) translateX(5em) translateY(-0.2em) rotate(360grad); width: 1.6em; height: 1.6em; }
+.conn-btn-top{ transform: rotate(360grad) translateX(-2em) translateY(-3.2em) rotate(-360grad); width: 1.6em; height: 1.6em; }
+.conn-btn-end-top{ transform: rotate(360grad) translateX(-2.5em) translateY(-3.5em) rotate(-360grad); width: 1.6em; height: 1.6em; }
+.conn-btn-bottom{ transform: rotate(360grad) translateX(3.5em) translateY(0.8em) rotate(360grad); width: 1.6em; height: 1.6em; }
 .conn-btn-begin-bottom{ transform: rotate(360grad) translateX(4.3em) translateY(1.4em) rotate(360deg); width: 1.6em; height: 1.6em; }
 /*.conn-btn-begin-bottom{ transform: rotate(-90deg) translate(-1em) rotate(90deg);}*/
 
@@ -54,12 +55,3 @@
 .PREPROCESSING {background-color:#34124d}
 .AGGREGATE {background-color:#FF7B89}
 .DEFAULT {background-color:white}
-
-.btn-outline-primary{
-    background-color: white !important;
-    border-color: gray !important;
-}
-
-.btn-outline-primary.focus, .btn-outline-primary:focus{
-    box-shadow: 0 0 0 .2rem rgba(34, 27, 145, 0.5) !important;
-}
