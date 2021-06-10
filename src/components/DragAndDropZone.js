@@ -2,7 +2,7 @@ import React, { createRef } from "react";
 import Block from '../draggable-nodes/Block'
 import '../styles/css/homepage.css'
 import { connectElements, deleteArrowById, getFirstPositionArrow, setMousePosition } from '../utils/utils_arrows'
-import { checkBlocksAlreadyConnected, deleteArrowsConnectingBlock } from '../utils/utils_block'
+import {changeColor, checkBlocksAlreadyConnected, deleteArrowsConnectingBlock } from '../utils/utils_block'
 import Messages from "./Messages";
 
 const DRAG_TYPE = ['BEGIN','PREPROCESSING','AGGREGATE','FILTER', 'RESAMPLE', 'SELECT', 'MERGE','END']
@@ -64,8 +64,7 @@ export class DragAndDropZone extends React.Component{
         var messages = this.state.messages        
         messages.push([
             date.toLocaleTimeString() + ': '
-            +this.state.childrenDropType[value] + ' added', 'message'])
-        
+            +this.state.childrenDropType[value] + ' added', 'message'])        
         this.setState({childrenDrag: new_childs_drag,
             conn_click:[],
             conn_blocks:[],
@@ -139,15 +138,7 @@ export class DragAndDropZone extends React.Component{
             conn_click:[],
             conn_blocks:[]})
     }
-
-    changeColor(ref1, ref2=undefined){
-        ref1.style.backgroundColor='red'
-        ref2.style.backgroundColor='red'
-        setTimeout(function(){
-            ref1.style.backgroundColor='#007bff'
-            ref2.style.backgroundColor='#007bff'            
-        }, 2000);
-    }
+   
 
 
     //Connects two block
@@ -168,8 +159,8 @@ export class DragAndDropZone extends React.Component{
             conn_click.push(button)
             block_click.push(blockRef)
             button_refs.push(buttonRef)        
-            if(button_refs[0]===button_refs[1] || block_click[0]===blockRef){  //HAVE CLICKED ON THE SAME BLOCK 
-                this.changeColor(button_refs[0],button_refs[1])
+            if(button_refs[0]===button_refs[1] || block_click[0]===blockRef){  //HAVE CLICKED ON THE SAME BLOCK                 
+                changeColor(button_refs[0],button_refs[1])
                 messages.push([
                 date.toLocaleTimeString() + 
                 ': You are trying to connect the same block.', 'error'])                
@@ -192,7 +183,7 @@ export class DragAndDropZone extends React.Component{
                             if(this.state.childrenDropType[id_b2]==='MERGE')
                                 this.drawLine(conn_click, button_refs, id_b1, id_b2, block_click)
                             else{       
-                                this.changeColor(button_refs[0],button_refs[1])                         
+                                changeColor(button_refs[0],button_refs[1])                         
                                 messages.push(
                                     [date.toLocaleTimeString() + 
                                     ': Just the MERGE block allows multiple input connections.', 
@@ -205,17 +196,17 @@ export class DragAndDropZone extends React.Component{
                             firstClick:false})
                     }
                     else{
-                        this.changeColor(button_refs[0],button_refs[1])
+                        changeColor(button_refs[0],button_refs[1])
                         messages.push(
                             [date.toLocaleTimeString() + 
                             ': You are trying to connect input and outputs buttons ', 'error'])
-                        this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages, firstClick:false})}
+                        this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages,x2:0, y2:0, firstClick:false})}
                 }else{
-                    this.changeColor(button_refs[0],button_refs[1])
+                    changeColor(button_refs[0],button_refs[1])
                     messages.push(
                         [date.toLocaleTimeString() + 
                         ': Blocks already connected ', 'error'])
-                    this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages, firstClick:false})
+                    this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages,x2:0, y2:0, firstClick:false})
                 }
             }
         }else{ //there are already two clicks, refresh state
@@ -310,10 +301,11 @@ export class DragAndDropZone extends React.Component{
     render(){
         return(<>
                 <div>
+                    <div className='message-header'>
+                        <h5 style={{textAlign:'center', paddingTop:'0.3em'}}>List of blocks</h5>
+                    </div>
                     <div id='drag-zone' ref={this.refDragZone} style={{display:'flex', flexDirection:'column'}}>
-                        <div className='message-header'>
-                            BLOCKS
-                        </div>
+                        
                         {this.state.childrenDrag.map((item, index) => (
                         <Block                             
                             id={`start-node-${item}`}

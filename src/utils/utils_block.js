@@ -70,3 +70,11 @@ export function deleteArrowsConnectingBlock(arrows, block_arrows, arrows_blocks,
 }
 
 
+export function changeColor(ref1, ref2=undefined){
+    ref1.style.backgroundColor='red'
+    ref2.style.backgroundColor='red'
+    setTimeout(function(){
+        ref1.style.backgroundColor='#007bff'
+        ref2.style.backgroundColor='#007bff'            
+    }, 2000);
+}

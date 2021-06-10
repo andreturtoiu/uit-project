@@ -2,7 +2,6 @@ import React from 'react'
 import '../styles/css/draggable.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { parseTransform } from '../utils/utils_block';
-import { getStyle } from '../blocks/utils';
 
 class BlockClass extends React.Component {
     constructor(props){        
@@ -19,6 +18,8 @@ class BlockClass extends React.Component {
         const { offsetTop, offsetLeft } = target; //the start position of the box relative to the view
         const { left, top } = this.handleRef.current.getBoundingClientRect(); //position of the box relative to the view - changes
         this.drop = document.getElementById('drop-zone') //drag-zone
+        this.drag = document.getElementById('drag-zone')
+        this.body = document.body
         this.dragStartLeft = left - offsetLeft;
         this.dragStartTop = top - offsetTop;
         this.dragStartX = clientX;
@@ -35,35 +36,42 @@ class BlockClass extends React.Component {
     /*
     * Avoid blocks to go out of drag-zone
     */  
-    checkBoundingMove(x,y){
-        var drop = this.drop
+    checkBoundingMove(x,y){        
+        if(!this.props.dragZone ){           
+           this.checkBoundingMovePosition(x,y, this.drop)
+        }else{            
+            this.checkBoundingMovePosition(x,y, this.body)
+        }
+    }
+
+    checkBoundingMovePosition(x,y, parent){
+        console.log('parent', parent)
         var bounding = this.handleRef.current.getBoundingClientRect()
         var left = bounding.left
         var right = bounding.right    
         var top = bounding.top
         var bottom = bounding.bottom
-        var offsetRight = drop.offsetWidth+drop.offsetLeft
-        
-        if(!this.props.dragZone ){           
-            if(left<drop.offsetLeft) //Left border of drop-zone
-                this.handleRef.current.style.transform = `translate(${x+(drop.offsetLeft+10-left)}px, ${y}px)`
-            if(right>offsetRight) //right border of drop-zone = offsetleft+offsetright            
-                this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y}px)`
-            if(top<drop.offsetTop) //sottrarre da y quanto sto sforando
-                this.handleRef.current.style.transform = `translate(${x}px, ${y-(top-drop.offsetTop-10)}px)`
-            if(bottom>drop.offsetHeight)//aggiungere il tanto che sto sforando
-                this.handleRef.current.style.transform = `translate(${x}px, ${y+(drop.offsetHeight-bottom-20)}px)`
-            if(left<drop.offsetLeft && top<drop.offsetTop) // Left-top
-                this.handleRef.current.style.transform = `translate(${x+(drop.offsetLeft+10-left)}px, ${y-(top-drop.offsetTop-10)}px)`
-            if(right>offsetRight && top<drop.offsetTop) //Right-top
-                this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y-(top-drop.offsetTop-10)}px)`
-            if(bottom>drop.offsetHeight&&left<drop.offsetLeft) //Bottom-left
-                this.handleRef.current.style.transform = `translate(${x+(drop.offsetLeft+10-left)}px, ${y+(drop.offsetHeight-bottom-20)}px)`
-            if(bottom>drop.offsetHeight&&right>offsetRight) //Bottom-right
-            this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y+(drop.offsetHeight-bottom-20)}px)`            
+        var offsetRight = this.props.dragZone ? this.body.offsetWidth: parent.offsetWidth+parent.offsetLeft
+        if(left<parent.offsetLeft) //Left border of drop-zone
+            this.handleRef.current.style.transform = `translate(${x+(parent.offsetLeft+10-left)}px, ${y}px)`
+        if(right>offsetRight) //right border of drop-zone = offsetleft+offsetright            
+            this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y}px)`
+        if(top<parent.offsetTop) //sottrarre da y quanto sto sforando
+            this.handleRef.current.style.transform = `translate(${x}px, ${y-(top-parent.offsetTop-10)}px)`
+        if(bottom>parent.offsetHeight)//aggiungere il tanto che sto sforando
+            this.handleRef.current.style.transform = `translate(${x}px, ${y+(parent.offsetHeight-bottom-20)}px)`
+        if(left<parent.offsetLeft && top<parent.offsetTop) // Left-top
+            this.handleRef.current.style.transform = `translate(${x+(parent.offsetLeft+10-left)}px, ${y-(top-parent.offsetTop-10)}px)`
+        if(right>offsetRight && top<parent.offsetTop) //Right-top
+            this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y-(top-parent.offsetTop-10)}px)`
+        if(bottom>parent.offsetHeight&&left<parent.offsetLeft) //Bottom-left
+            this.handleRef.current.style.transform = `translate(${x+(parent.offsetLeft+10-left)}px, ${y+(parent.offsetHeight-bottom-20)}px)`
+        if(bottom>parent.offsetHeight&&right>offsetRight) //Bottom-right
+        this.handleRef.current.style.transform = `translate(${x-(right-offsetRight+20)}px, ${y+(parent.offsetHeight-bottom-20)}px)`
+        if(!this.props.dragZone)
             this.props.parentCallbackOnMove(parseTransform(this.handleRef.current.style.transform), this.handleRef.current)
-        }    
     }
+
 
     //moves block on mouse move
     handleMouseMove = ({ clientX, clientY }) => {
@@ -71,6 +79,7 @@ class BlockClass extends React.Component {
             var x = this.dragStartLeft + clientX - this.dragStartX - this.drop.offsetLeft
         else x = this.dragStartLeft + clientX - this.dragStartX
         var y = this.dragStartTop + clientY - this.dragStartY
+
         this.handleRef.current.style.transform = `translate(${x}px, ${y}px)`;       
         this.checkBoundingMove(x,y)
     }
@@ -90,11 +99,7 @@ class BlockClass extends React.Component {
         window.removeEventListener('mousemove', this.handleMouseMove, false)
         window.removeEventListener('mouseup', this.handleMouseUp, false)
     }  
-    
-    prova(){
-        console.log('PROVA')
-    }
-
+        
 
     render(args){
         return (
