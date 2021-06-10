@@ -10,7 +10,7 @@
 #drop-zone{
     height: 100vh;
     width: 82vw;
-    border: 1px solid black;
+    border: 1px solid rgb(175, 171, 171);
     background-color: transparent;        
     touch-action: none;
 }

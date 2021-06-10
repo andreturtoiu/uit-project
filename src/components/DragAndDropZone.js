@@ -64,7 +64,8 @@ export class DragAndDropZone extends React.Component{
         var messages = this.state.messages        
         messages.push([
             date.toLocaleTimeString() + ': '
-            +this.state.childrenDropType[value] + ' added', 'message'])        
+            +this.state.childrenDropType[value] + ' added', 'message'])
+        
         this.setState({childrenDrag: new_childs_drag,
             conn_click:[],
             conn_blocks:[],
@@ -138,6 +139,7 @@ export class DragAndDropZone extends React.Component{
             conn_click:[],
             conn_blocks:[]})
     }
+
    
 
 

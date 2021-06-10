@@ -8,8 +8,6 @@ class BlockClass extends React.Component {
         super(props); 
         this.handleRef = React.createRef()        
     }
-    //setHandleRef = ref => {this.handleRef = ref;}
-      
     /*
     * Handler mouse down event 
     */
@@ -17,8 +15,8 @@ class BlockClass extends React.Component {
         const {target, clientX, clientY} = event; //position of pointer inside the box relative to the view    
         const { offsetTop, offsetLeft } = target; //the start position of the box relative to the view
         const { left, top } = this.handleRef.current.getBoundingClientRect(); //position of the box relative to the view - changes
-        this.drop = document.getElementById('drop-zone') //drag-zone
-        this.drag = document.getElementById('drag-zone')
+        this.drop = document.getElementById('drop-zone') //drop-zone
+        this.drag = document.getElementById('drag-zone') //drag-zone
         this.body = document.body
         this.dragStartLeft = left - offsetLeft;
         this.dragStartTop = top - offsetTop;
