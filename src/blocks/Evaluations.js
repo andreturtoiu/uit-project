@@ -71,7 +71,8 @@ function evalPreprocessing(df, params) {
     if (!params) {
         return df
     }
-    const { prpFun, labels } = params
+    const { prpFun } = params
+    const labels = df.listColumns()
     switch (prpFun) {
         case 'log':
             return labels.reduce((part_df, l) => {
@@ -131,6 +132,10 @@ function evalAggregate(df, params) {
     return agg_df
 }
 function evalMerge(df, df2) {
+    console.log("EVAL MERGE! DF1")
+    df.show()
+    console.log("EVAL MERGE! DF2")
+    df2.show()
     const df_cols = df.listColumns()
     const df2_cols = df2.listColumns().filter(col => col !== 'date')
     //rename df2 cols
@@ -140,6 +145,8 @@ function evalMerge(df, df2) {
             df2_renamed = df2_renamed.rename(col, col + "_2")
         }
     });
+    console.log("EVAL MERGE! DF RENAMED")
+    df2_renamed.show()
     const res = df.innerJoin(df2_renamed, ["date"])
     res.show()
     return res

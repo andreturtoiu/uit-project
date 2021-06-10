@@ -26,17 +26,21 @@ class Block extends BlockClass{
             blockRef:this.handleRef,
             parentRefs: this.props.parentRefs,
             params: {},
-            value: df
+            value: null
         }      
     }
     
     
+    setBeginValue = (df) => {
+        this.setState({value: df})
+    }
+    
     componentDidMount(){
-        
+        console.log("COMPONENT DID MOUNT")
         var default_params = {
-            'labels': df.listColumns(),
-            'begin': df.select('date').toArray()[0][0], 
-            'end': df.select('date').toArray().reverse()[0][0],
+            'labels': [],
+            'begin': '2000-01-01 00:00:00', 
+            'end': '2100-01-01 00:00:00', 
             'sample': 'day',
             'resampleFun': 'sum',
             'prpFun': 'log',
@@ -44,6 +48,8 @@ class Block extends BlockClass{
         }
         this.setState({params: default_params})
     }
+
+    
 
     getParentParams = () => {
         //console.log("PARENT REFS", this.props.parentRefs)
@@ -56,15 +62,26 @@ class Block extends BlockClass{
     }
     
     syncParamsFromParent = () => {
-        const parent_params = this.getParentParams()[0]
         var {params} = this.state
         //console.log("CALLING SYNCPARAMS", params, parent_params)
-        if(!params || !parent_params){
+        if(!params){
+            return
+        }
+        const parent_values = this.getParentValues()
+        if(!parent_values){
+            return
+        }
+        const parent_value = parent_values[0]
+        if(!parent_value){
             return
         }
        // console.log("SYNCED PARAMS")
-        params.labels = params.labels.filter(l => parent_params.labels.some(pl => pl === l))
-        this.setParams(params)
+       if(params.labels){
+        params.labels = params.labels.filter(l => parent_value.listColumns().some(pl => pl === l))
+        
+       }
+       this.setParams(params)
+        
     }
 
     componentDidUpdate(prevProps){
@@ -94,16 +111,26 @@ class Block extends BlockClass{
     }
 
     getValue = () => {
+        console.log("INIZIO GET VALUE")
+        if(this.props.block_type === "BEGIN"){
+            return this.state.value
+        }
         const parent_values = this.getParentValues()
+        console.log("PARENT VALUES", parent_values)
         //console.log("PARENT VALUES", parent_values)
         if(!parent_values){
+            console.log("NO PARENT VALUES, RETURN!")
             return []
         }
         const value = parent_values[0]
+        console.log("VALUE", value)
+        if(!value){
+            return null
+        }
+        
         const {params} = this.state
         switch (this.props.block_type) {
-            case "BEGIN": return this.state.value
-            case "END": return this.state.value
+            case "END": return value
             case "SELECT": return evalSelect(value, params)
             case "FILTER": return evalFilter(value, params)
             case "RESAMPLE": return evalResample(value, params)

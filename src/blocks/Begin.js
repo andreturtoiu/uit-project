@@ -2,56 +2,165 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 import CSVReader from "react-csv-reader";
+import moment from 'moment'
+import DataFrame from 'dataframe-js'
 
+const date_formats = [
+  'DD/MM/YYYY',
+  'DD/MM/YYYY HH',
+  'DD/MM/YYYY HH:mm',
+  'DD/MM/YYYY HH:mm:ss',
+  'YYYY-MM-DD HH:mm:ss'
+]
 
-export default class Begin extends React.Component{
-  constructor(props){        
-    super(props)      
+export default class Begin extends React.Component {
+  constructor(props) {
+    super(props)
     this.state = {
-        showForm: false,
-        columns:[]
+      showForm: false,
+      columns: [],
+      date_cols: [],
+      date_col: null,
+      df: null,
+      base_df: null
     }
-}
+  }
+
+  getValidDateCols = (keys, firstRow) => {
+    var validDateCols = []
+    keys.forEach(element => {
+      var value = firstRow[element]
+      console.log("KEY DATE", element, value, typeof value, isNaN(value))
+      var isValidDate
+
+      if (isNaN(value)) { //value è una stringa, verifichiamo se può essere una data valida
+        isValidDate = moment(value, date_formats, true).isValid()
+      }
+      else { //value è un numero, verifichiamo se è un timestamp valido
+        isValidDate = moment.unix(value).isValid()
+      }
+      if (isValidDate) {
+        validDateCols.push(element)
+      }
+    })
+    return validDateCols
+  }
+
+  getValidDataCols = (keys, firstRow) => {
+    var validDataCols = []
+    keys.forEach(element => {
+      var value = firstRow[element]
+      if (!isNaN(value)) {
+        validDataCols.push(element)
+      }
+    })
+    return validDataCols
+  }
+
   //fileinfo USE TO CHECK ERRORS
   checkDataset = (data, fileInfo) => {
-    const keys = Object.keys(data[0])   
+    const keys = Object.keys(data[0])
+    console.log("KEYS", keys) //lista colonne
+    console.log("DATA", data) //lista di rows
+    const validDateCols = this.getValidDateCols(keys, data[0])
+    const validDataCols = this.getValidDataCols(keys, data[0])
     //CONTROLLI SUL FILE QUI
     //Check delle colonne ed eventualmente togli quello che non è numerico
-    this.setState({showForm:true})
+    console.log("VALID DATES IN CHECK", validDateCols)
+    const df = new DataFrame(data, keys)
 
-    };
-  
-    render(){
-      const parseOptions = {
-        header: true,
-        dynamicTyping: false,
-        skipEmptyLines: true,
-        transformHeader: header => header.toLowerCase()
-      };
-      return(
-        <div className='block-div-begin'>
-          <div>  
-            <Form>
-              <Form.Group>
-              <CSVReader
-                    cssClass="react-csv-input"
-                    label={`Upload CSV file`}
-                    onFileLoaded={this.checkDataset}
-                    parserOptions={parseOptions}
-                />
-                
-                {this.state.showForm && 
-                <div>                
-                  <p>Qui generi i check sulla base delle colonne </p>  
-                  <p></p>
-                  <button>Conferma selezione data e setti lo state di Block</button>
-                </div>}
-              </Form.Group>
-            </Form>       
-          </div>     
-      </div>
-      
-      )
-    }
+    //TODO: controllare che nel file ci siano date valide
+    //TODO2: controllare che nel file ci sia una colonna di valori validi
+    //TODO3: visualizzare params in onMouseOver sul Block
+
+    this.setState({
+      showForm: true,
+      date_cols: validDateCols,
+      date_col: validDateCols[0],
+      columns: validDataCols,
+      df: df,
+      base_df: df
+    })
+
     
+    this.props.valueCallBack(this.getDesiredDataFrame(validDateCols[0]))
+  };
+
+  getDesiredDataFrame = (date_col) => {
+    const { base_df, columns } = this.state
+    console.log(base_df)
+    const value_cols = columns.filter(l => l !== date_col)
+    var requested_df = base_df.rename(date_col, 'date')
+    requested_df = requested_df.select('date', ...value_cols)
+    return this.parseDataFrameDate(requested_df)
   }
+
+  parseDataFrameDate = (df) => {
+    return df.withColumn('date', (row) => {
+      var date = row.get('date')
+      if (isNaN(date)) { //date è una stringa
+        date = moment(date, date_formats, true)
+      }
+      else { //date è un numero
+        date = moment.unix(date)
+      }
+      return date.format('YYYY-MM-DD HH:mm:ss')
+    })
+  }
+
+  handleDateSelect = (event) => {
+    console.log("ON CHANGE", event)
+    console.log("ONCHANGE", event.target)
+    const col = event.target.id
+
+    //Prepare DataFrame
+    var df = this.getDesiredDataFrame(col)
+    this.props.valueCallBack(df)
+    this.setState({ date_col: col, df: df })
+  }
+
+  render() {
+    const parseOptions = {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      transformHeader: header => header.toLowerCase()
+    };
+    return (
+      <div className='block-div-begin'>
+        <div>
+          <Form>
+            <Form.Group>
+              <CSVReader
+                cssClass="react-csv-input"
+                label={`Upload CSV file`}
+                onFileLoaded={this.checkDataset}
+                parserOptions={parseOptions}
+              />
+            </Form.Group>
+            <Form.Group>
+              {this.state.showForm &&
+                <div>
+                  <p>Seleziona la colonna da usare come data</p>
+                  {this.state.date_cols.map(col =>
+                    <Form.Check
+                      type={'radio'}
+                      id={col}
+                      label={col}
+                      name={"date_col_radio"}
+                      onChange={this.handleDateSelect}
+                      checked = { col === this.state.date_col ? true : false } //test
+                    />
+
+
+                  )}
+                </div>}
+            </Form.Group>
+          </Form>
+        </div>
+      </div>
+
+    )
+  }
+
+}

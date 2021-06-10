@@ -21,8 +21,16 @@ export default function Select(props) {
     else if (col !== 'date' && labels.some((label) => label === col)) {
       newLabels = newLabels.filter((label) => label !== col)
     }
+    if(!newLabels.some(l=>l==='date')){
+      newLabels = ['date', ...newLabels]
+    }
     setLabels(newLabels)
     props.paramsCallBack({'labels': newLabels})
+  }
+
+const showForm = () => {
+  if(!props.value){
+    return <p>Nessuna opzione</p>
   }
   return (
     <div className='block-div-agg'>
@@ -48,5 +56,8 @@ export default function Select(props) {
 
 
     </div>)
+  }
+
+  return(showForm())
 
 }

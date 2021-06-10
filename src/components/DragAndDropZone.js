@@ -201,7 +201,7 @@ export class DragAndDropZone extends React.Component{
                         changeColor(button_refs[0],button_refs[1])
                         messages.push(
                             [date.toLocaleTimeString() + 
-                            ': You are trying to connect input and outputs buttons ', 'error'])
+                            ': You are trying to connect incompatible buttons ', 'error'])
                         this.setState({ button_refs:[], conn_click:[], conn_blocks:[], messages:messages,x2:0, y2:0, firstClick:false})}
                 }else{
                     changeColor(button_refs[0],button_refs[1])

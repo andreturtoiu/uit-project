@@ -3,6 +3,7 @@ import '../styles/css/homepage.css'
 import Chart from "react-apexcharts";
 import DragAndDropZone from './DragAndDropZone'
 import Modal from 'react-bootstrap/Modal'
+import {Button} from 'react-bootstrap'
 import Begin from '../blocks/Begin'
 import Select from '../blocks/Select'
 import Filter from '../blocks/Filter'
@@ -31,7 +32,7 @@ export class HomePage extends React.Component{
         console.log("CALLER ATTRIBUTES", callerModal)
         
         switch (callerModal.current.props.block_type) {            
-            case "BEGIN": return <Begin/>
+            case "BEGIN": return <Begin valueCallBack={(df) => this.setHomePageValue(df)}/>
             case "END": return <p>END</p>//<End value={value} />
             case "SELECT": return <Select value={value} currParams={callerParams} paramsCallBack={(params) => this.setHomePageParams(params)} />
             case "FILTER": return <Filter value={value} currParams={callerParams} paramsCallBack={(params) => this.setHomePageParams(params)} />
@@ -43,8 +44,15 @@ export class HomePage extends React.Component{
         }
     }
 
+
     setHomePageParams = (params) => {
         this.setState({callerParams: params})
+    }
+
+    setHomePageValue = (value) => {
+        console.log("SETHOMEPAGEVALUE", value.listColumns())
+        value.show()
+        this.setState({value: value})
     }
 
     renderParamsModal() {
@@ -54,23 +62,42 @@ export class HomePage extends React.Component{
             </Modal.Header>
             <Modal.Body>{this.renderForm()}</Modal.Body>
             <Modal.Footer>
-                <button variant="primary" onClick={() => {
-                    this.state.setCallerParams(this.state.callerParams)
-                    this.setState({showModal: false })
+                <Button variant="primary" onClick={() => {
+                    console.log("ON CLICK SAVE")
+                    if(this.state.callerModal.current.props.block_type === "BEGIN"){
+                        console.log("IF BEGIN", this.state.callerModal.current.props.block_type)
+                        this.state.callerModal.current.setBeginValue(this.state.value)
+                    }
+                    else{
+                        console.log("ELSE BEGIN", this.state.callerModal.current.props.block_type)
+                        this.state.setCallerParams(this.state.callerParams)
+                    }
+                    console.log("DONE")
+                    this.setState({showParamsModal: false })
                     }}>
                     Save
-                </button>
-                <button variant="secondary" onClick={() => this.setState({showParamsModal: false })}>
+                </Button>
+                <Button variant="secondary" onClick={() => this.setState({showParamsModal: false })}>
                     Close
-                </button>
+                </Button>
 
             </Modal.Footer>
         </Modal>
     }
 
     renderGraph(){
-        const graph = this.state.callerModal.current.getValue()        
+        console.log("RENDER GRAPH PRE VALUE")
+        const graph = this.state.callerModal.current.getValue() 
+        console.log("RENDER GRAPH", graph)
+        if(!graph){
+            return <p>Nessun valore da mostrare</p>
+        }
+        if(graph.listColumns().length < 1){
+            return <p>Nessun valore da mostrare</p>
+        }
+        console.log("CALLER VALUES", graph)       
         const chart_data = convertToChart(graph)
+
         var options =  {
             chart: {
               id: "line"
@@ -90,8 +117,21 @@ export class HomePage extends React.Component{
               type="line"
               width="100%"
             />
-            <p>PARAMS: {JSON.stringify(params)}</p>
+            {this.renderParamsOnGraphModal(params, this.state.callerModal.current.props.block_type)}
         </div>
+    }
+
+    renderParamsOnGraphModal = (params, block_type) => {
+        switch(block_type){
+            case "SELECT": return <p>Columns selected: {params.labels.map(l => <p>{l}</p>)}</p>
+            case "PREPROCESSING": return <p>Function selected: {params.prpFun}</p>
+            case "AGGREGATE": return <p>
+                Executed "{params.aggFun}" on: {params.labels.map(l => <p>{l}</p>)}
+            </p>
+            case "FILTER": return <p>Filtered from {params.begin} to {params.end}</p>
+            case "RESAMPLE": return <p>Resampled on {params.sample}</p>
+            default: return <p></p>
+        }
     }
 
     renderGraphModal() {
@@ -102,9 +142,9 @@ export class HomePage extends React.Component{
                 </Modal.Header>
                 <Modal.Body>{this.renderGraph()}</Modal.Body>
                 <Modal.Footer>
-                    <button variant="secondary" onClick={() => this.setState({showGraphModal: false })}>
+                    <Button variant="secondary" onClick={() => this.setState({showGraphModal: false })}>
                         Close
-                    </button>
+                    </Button>
 
                 </Modal.Footer>
             </Modal>)

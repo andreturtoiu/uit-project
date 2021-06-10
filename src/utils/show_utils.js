@@ -7,9 +7,9 @@ export function convertToChart(df){
     var categories = [], series_list=[]
     df_list.forEach(element => {
         columns.forEach(col=>{
-            series[col].push(element[col].toFixed(2))
+            series[col].push(parseFloat(element[col]).toFixed(2))
         })
-        categories.push(1)
+        categories.push(element['date'])
     });
     
     columns.forEach(el=>{
