@@ -136,7 +136,7 @@ class Block extends BlockClass{
             case "RESAMPLE": return evalResample(value, params)
             case "PREPROCESSING": return evalPreprocessing(value, params)
             case "AGGREGATE": return evalAggregate(value, params)
-            case "MERGE": return evalMerge(parent_values[0], parent_values[1])
+            case "MERGE": return evalMerge(parent_values)
             default: return this.state.value
         }
 

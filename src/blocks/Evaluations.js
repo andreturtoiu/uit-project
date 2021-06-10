@@ -131,7 +131,7 @@ function evalAggregate(df, params) {
 
     return agg_df
 }
-function evalMerge(df, df2) {
+function evalMergeReduce(df, df2) {
     console.log("EVAL MERGE! DF1")
     df.show()
     console.log("EVAL MERGE! DF2")
@@ -141,15 +141,26 @@ function evalMerge(df, df2) {
     //rename df2 cols
     var df2_renamed = df2
     df2_cols.forEach(col => {
-        if (df_cols.includes(col)) {
-            df2_renamed = df2_renamed.rename(col, col + "_2")
+        var new_col_name = col
+        while(true){
+            if (df_cols.includes(new_col_name)) {
+                new_col_name = new_col_name + "_2"
+            }
+            else{
+                break
+            }
         }
+        df2_renamed = df2_renamed.rename(col, new_col_name)
     });
     console.log("EVAL MERGE! DF RENAMED")
     df2_renamed.show()
     const res = df.innerJoin(df2_renamed, ["date"])
     res.show()
     return res
+}
+
+function evalMerge(dfs) {
+    return dfs.reduce( (part, a) => evalMergeReduce(part, a) )
 }
 
 export {
