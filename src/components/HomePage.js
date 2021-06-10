@@ -3,7 +3,7 @@ import '../styles/css/homepage.css'
 import Chart from "react-apexcharts";
 import DragAndDropZone from './DragAndDropZone'
 import Modal from 'react-bootstrap/Modal'
-import {Button} from 'react-bootstrap'
+import {Button, Form} from 'react-bootstrap'
 import Begin from '../blocks/Begin'
 import Select from '../blocks/Select'
 import Filter from '../blocks/Filter'
@@ -12,8 +12,6 @@ import Preprocessing from '../blocks/Preprocessing'
 import Aggregate from '../blocks/Aggregate'
 import { convertToChart } from '../utils/show_utils'
 
-const DRAG_TYPE = ['BEGIN','PREPROCESSING','AGGREGATE','FILTER', 'RESAMPLE', 'SELECT', 'MERGE','END']
-const DRAG_IDS = DRAG_TYPE.map(x=>Math.random())
 export class HomePage extends React.Component{
     constructor(props){        
         super(props)      
@@ -22,6 +20,7 @@ export class HomePage extends React.Component{
             callerModal: null,
             callerParams: {},
             blockValueCallbacks: {},
+            chartType:'line'
         }
     }
 
@@ -29,8 +28,7 @@ export class HomePage extends React.Component{
         //const { type, params, value } = this.state
         const {callerModal, callerParams} = this.state
         const value = callerModal.current.getParentValues()[0]
-        console.log("CALLER ATTRIBUTES", callerModal)
-        
+
         switch (callerModal.current.props.block_type) {            
             case "BEGIN": return <Begin fileName={callerModal.current.getInputFileName()} valueCallBack={(df, name) => this.setHomePageValue(df, name)}/>
             case "END": return <p>END</p>//<End value={value} />
@@ -85,41 +83,79 @@ export class HomePage extends React.Component{
         </Modal>
     }
 
+    renderSingleTypeChart(series,categories){
+        var options =  {
+            chart: {
+              id: "line"
+            },
+            xaxis: {
+              categories: categories
+            }
+          }
+        return(
+            <>
+            <Chart
+                type={this.state.chartType}
+                options={options}
+                series={series}
+                width="100%"
+            />
+            {this.getSingleFormChartType(this.handleRadioChange)}          
+            </>
+        )
+    }
+
+    getSingleFormChartType(onChange){
+        return(
+        <Form>
+            <Form.Check
+                inline
+                type='radio'
+                id='line'
+                label='Line'
+                name='type'
+                defaultChecked = {true}
+                onChange={onChange}
+            />
+            <Form.Check
+                inline
+                type='radio'
+                id='bar'
+                label='Bar'
+                name='type'
+                defaultChecked = {false}
+                onChange={onChange}
+            />
+        </Form>)
+    }
+
+
+
     renderGraph(){
-        console.log("RENDER GRAPH PRE VALUE")
         const graph = this.state.callerModal.current.getValue() 
-        console.log("RENDER GRAPH", graph)
         if(!graph){
             return <p>Nessun valore da mostrare</p>
         }
         if(graph.listColumns().length < 2){
             return <p>Nessun valore da mostrare</p>
         }
-        console.log("CALLER VALUES", graph)       
+        
         const chart_data = convertToChart(graph)
-
-        var options =  {
-            chart: {
-              id: "line"
-            },
-            xaxis: {
-              categories: chart_data.categories
-            }
-          }
-        var series  =  chart_data.series
+        var series  =  chart_data.series        
+        var chart = this.renderSingleTypeChart(series, chart_data.categories)
+          
         //options.series = chart_data.series
         const params = this.state.callerParams
         console.log(params)
         return <div>
-            <Chart
-              options={options}
-              series={series}
-              type="line"  //TODO: aggiungere switch tra "line" e "bar"
-              width="100%"
-            />
+            {chart}           
+            <div style={{marginTop:'2em'}}>
             {this.renderParamsOnGraphModal(params, this.state.callerModal.current.props.block_type)}
+            </div>            
         </div>
     }
+    
+    handleRadioChange=(e)=>{console.log(e);this.setState({chartType:e.target.id})}
 
     renderParamsOnGraphModal = (params, block_type) => {
         switch(block_type){

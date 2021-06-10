@@ -159,14 +159,11 @@ class Block extends BlockClass{
     }
 
     renderTooltip = (props) => (        
-        <Tooltip id="button-tooltip" {...props}>
+        <Tooltip id="button-tooltip" {...props} >
           <div className='tooltip-div'>
-            {this.state.params&&
-                <div>
-                    <h5>Setted params</h5>
-                    <p>Click on magnifying glass button to see more</p>
-                </div>}
+            {this.state.params&&<p style={{fontSize:'1.2em'}}>Setted params:</p>}
             {this.state.params&&this.renderParamsOnTooltip()}
+            <p style={{fontSize:'0.8rem',fontStyle:'italic'}}>Hint: Click on magnifying glass button to see more</p>
           </div>
         </Tooltip>
       );
@@ -174,14 +171,14 @@ class Block extends BlockClass{
     renderParamsOnTooltip = () => {
         const {params} = this.state
         switch(this.props.block_type){
-        case "BEGIN": return <p>File selected: {this.state.fileName || "None"}</p>
-            case "SELECT": return <p>Columns selected: {params.labels.map(l => <p>{l}</p>)}</p>
-            case "PREPROCESSING": return <p>Function selected: {params.prpFun}</p>
+        case "BEGIN": return <><p>Uploaded file: <span style={{fontWeight:800}}>{this.state.fileName || "None"}</span></p></>
+            case "SELECT": return <><p>Selected columns: {params.labels.lenght>1 ?  params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}</p></>
+            case "PREPROCESSING": return <p>Function selected: <span style={{fontWeight:800}}>{params.prpFun}</span></p>
             case "AGGREGATE": return <p>
-                Executed "{params.aggFun}" on: {params.labels.map(l => <p>{l}</p>)}
+                Executed "{params.aggFun}" on: {params.labels.lenght>1 ? params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}
             </p>
-            case "FILTER": return <p>Filtered from {params.begin} to {params.end}</p>
-            case "RESAMPLE": return <p>Resampled on {params.sample} as {params.resampleFun}</p>
+            case "FILTER": return <p>Filtered from <span style={{fontWeight:800}}>{params.begin}</span> to <span style={{fontWeight:800}}>{params.end}</span></p>
+            case "RESAMPLE": return <p>Resampled on <span style={{fontWeight:800}}>{params.sample}</span> as <span style={{fontWeight:800}}>{params.resampleFun}</span></p>
             default: return <p></p>
         }
     
@@ -208,7 +205,7 @@ class Block extends BlockClass{
                                 e.preventDefault();
                                 this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
                             }}/>
-                        <OverlayTrigger
+                        <OverlayTrigger                            
                             placement="right"
                             delay={{ show: 250, hide: 400 }}
                             overlay={this.renderTooltip}

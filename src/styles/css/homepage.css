@@ -52,3 +52,8 @@
     color: black;
 }
 
+.tooltip .tooltip-inner {
+    width: 400px !important;
+    white-space: normal;
+    max-width: none !important; 
+  }
