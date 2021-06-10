@@ -32,7 +32,7 @@ export class HomePage extends React.Component{
         console.log("CALLER ATTRIBUTES", callerModal)
         
         switch (callerModal.current.props.block_type) {            
-            case "BEGIN": return <Begin valueCallBack={(df) => this.setHomePageValue(df)}/>
+            case "BEGIN": return <Begin fileName={callerModal.current.getInputFileName()} valueCallBack={(df, name) => this.setHomePageValue(df, name)}/>
             case "END": return <p>END</p>//<End value={value} />
             case "SELECT": return <Select value={value} currParams={callerParams} paramsCallBack={(params) => this.setHomePageParams(params)} />
             case "FILTER": return <Filter value={value} currParams={callerParams} paramsCallBack={(params) => this.setHomePageParams(params)} />
@@ -49,10 +49,10 @@ export class HomePage extends React.Component{
         this.setState({callerParams: params})
     }
 
-    setHomePageValue = (value) => {
+    setHomePageValue = (value, name) => {
         console.log("SETHOMEPAGEVALUE", value.listColumns())
         value.show()
-        this.setState({value: value})
+        this.setState({value: value, fileName: name})
     }
 
     renderParamsModal() {
@@ -66,7 +66,7 @@ export class HomePage extends React.Component{
                     console.log("ON CLICK SAVE")
                     if(this.state.callerModal.current.props.block_type === "BEGIN"){
                         console.log("IF BEGIN", this.state.callerModal.current.props.block_type)
-                        this.state.callerModal.current.setBeginValue(this.state.value)
+                        this.state.callerModal.current.setBeginValue(this.state.value, this.state.fileName)
                     }
                     else{
                         console.log("ELSE BEGIN", this.state.callerModal.current.props.block_type)
@@ -92,7 +92,7 @@ export class HomePage extends React.Component{
         if(!graph){
             return <p>Nessun valore da mostrare</p>
         }
-        if(graph.listColumns().length < 1){
+        if(graph.listColumns().length < 2){
             return <p>Nessun valore da mostrare</p>
         }
         console.log("CALLER VALUES", graph)       
@@ -114,7 +114,7 @@ export class HomePage extends React.Component{
             <Chart
               options={options}
               series={series}
-              type="line"
+              type="line"  //TODO: aggiungere switch tra "line" e "bar"
               width="100%"
             />
             {this.renderParamsOnGraphModal(params, this.state.callerModal.current.props.block_type)}
@@ -129,7 +129,7 @@ export class HomePage extends React.Component{
                 Executed "{params.aggFun}" on: {params.labels.map(l => <p>{l}</p>)}
             </p>
             case "FILTER": return <p>Filtered from {params.begin} to {params.end}</p>
-            case "RESAMPLE": return <p>Resampled on {params.sample}</p>
+            case "RESAMPLE": return <p>Resampled on {params.sample} as {params.resampleFun}</p>
             default: return <p></p>
         }
     }

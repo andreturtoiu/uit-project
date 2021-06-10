@@ -6,11 +6,18 @@ import moment from 'moment'
 import DataFrame from 'dataframe-js'
 
 const date_formats = [
+  'D/M/YYYY',
+  'M/YYYY',
+  'D/M/YY',
+  'YYYY',
+  'MM/YYYY',
   'DD/MM/YYYY',
+  'YYYY-MM-DD',
   'DD/MM/YYYY HH',
   'DD/MM/YYYY HH:mm',
   'DD/MM/YYYY HH:mm:ss',
-  'YYYY-MM-DD HH:mm:ss'
+  'YYYY-MM-DD HH:mm:ss',
+  'M/D/YYYY'
 ]
 
 export default class Begin extends React.Component {
@@ -59,6 +66,7 @@ export default class Begin extends React.Component {
 
   //fileinfo USE TO CHECK ERRORS
   checkDataset = (data, fileInfo) => {
+    console.log("FILE INFO", fileInfo)
     const keys = Object.keys(data[0])
     console.log("KEYS", keys) //lista colonne
     console.log("DATA", data) //lista di rows
@@ -69,8 +77,11 @@ export default class Begin extends React.Component {
     console.log("VALID DATES IN CHECK", validDateCols)
     const df = new DataFrame(data, keys)
 
-    //TODO: controllare che nel file ci siano date valide
-    //TODO2: controllare che nel file ci sia una colonna di valori validi
+    //controllare che nel file ci siano date valide 
+    if(validDateCols.length === 0){
+      return
+    }
+    
     //TODO3: visualizzare params in onMouseOver sul Block
 
     this.setState({
@@ -79,11 +90,12 @@ export default class Begin extends React.Component {
       date_col: validDateCols[0],
       columns: validDataCols,
       df: df,
-      base_df: df
+      base_df: df,
+      fileName: fileInfo.name
     })
 
     
-    this.props.valueCallBack(this.getDesiredDataFrame(validDateCols[0]))
+    this.props.valueCallBack(this.getDesiredDataFrame(validDateCols[0]), fileInfo.name)
   };
 
   getDesiredDataFrame = (date_col) => {
@@ -115,7 +127,7 @@ export default class Begin extends React.Component {
 
     //Prepare DataFrame
     var df = this.getDesiredDataFrame(col)
-    this.props.valueCallBack(df)
+    this.props.valueCallBack(df, this.state.fileName)
     this.setState({ date_col: col, df: df })
   }
 
@@ -138,6 +150,7 @@ export default class Begin extends React.Component {
                 parserOptions={parseOptions}
               />
             </Form.Group>
+    {this.props.fileName && <p>Loaded file: {this.props.fileName}</p>}
             <Form.Group>
               {this.state.showForm &&
                 <div>

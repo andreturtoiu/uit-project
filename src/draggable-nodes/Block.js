@@ -31,8 +31,8 @@ class Block extends BlockClass{
     }
     
     
-    setBeginValue = (df) => {
-        this.setState({value: df})
+    setBeginValue = (df, file) => {
+        this.setState({value: df, fileName: file})
     }
     
     componentDidMount(){
@@ -166,10 +166,30 @@ class Block extends BlockClass{
                     <h5>Setted params</h5>
                     <p>Click on magnifying glass button to see more</p>
                 </div>}
-            {this.state.params&&<p>Setted params</p>}
+            {this.state.params&&this.renderParamsOnTooltip()}
           </div>
         </Tooltip>
       );
+
+    renderParamsOnTooltip = () => {
+        const {params} = this.state
+        switch(this.props.block_type){
+        case "BEGIN": return <p>File selected: {this.state.fileName || "None"}</p>
+            case "SELECT": return <p>Columns selected: {params.labels.map(l => <p>{l}</p>)}</p>
+            case "PREPROCESSING": return <p>Function selected: {params.prpFun}</p>
+            case "AGGREGATE": return <p>
+                Executed "{params.aggFun}" on: {params.labels.map(l => <p>{l}</p>)}
+            </p>
+            case "FILTER": return <p>Filtered from {params.begin} to {params.end}</p>
+            case "RESAMPLE": return <p>Resampled on {params.sample} as {params.resampleFun}</p>
+            default: return <p></p>
+        }
+    
+    }
+
+    getInputFileName = () => {
+        return this.state.fileName
+    }
 
     renderBlock(type){
         return (
@@ -206,7 +226,7 @@ class Block extends BlockClass{
                                 this.props.parentCallbackOpenGraphModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
                                 }}/>
                         </OverlayTrigger>
-                        <FaEdit className='fa-icon'
+                        {this.props.block_type!=='MERGE' && this.props.block_type!=='END' && <FaEdit className='fa-icon'
                         onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                         onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                         onClick={e=>{
@@ -214,7 +234,7 @@ class Block extends BlockClass{
                             this.syncParamsFromParent()
                             this.props.parentCallbackOpenParamsModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
                             }}
-                        />
+                        />}
                     </div>
                 </div>
                 {this.props.block_type!=='BEGIN'&& this.props.block_type!=='END' && 
@@ -231,7 +251,7 @@ class Block extends BlockClass{
                     parentCallbackDraw={this.drawCallback}/>}
                 {this.props.block_type==='END'&&
                 <ConnectButton 
-                    position='bottom'                    
+                    position='top'                    
                     cssStyle='conn-btn-end-top'
                     childComponentRef={this.bottom_button}
                     parentCallbackDraw={this.drawCallback}/>}
