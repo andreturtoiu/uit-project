@@ -119,8 +119,12 @@ export class HomePage extends React.Component {
 
 
     renderGraph() {
+        const block_type = this.state.callerModal.current.props.block_type
         const graph = this.state.callerModal.current.getValue()
         if (!graph) {
+            if(block_type === "BEGIN"){
+                return <p>No dataset provided. Please load a proper csv file</p>
+            }
             return <p>Encountered errors in previous blocks. Please check parameters</p>
         }
         if (typeof graph === 'string') {

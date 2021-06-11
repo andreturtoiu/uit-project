@@ -279,14 +279,17 @@ export class DragAndDropZone extends React.Component{
         this.props.parentCallbackOpenParamsModal(this[callerRef], params, setParams)
     } 
 
-    openGraphModalOnHomePage = (callerRef, params, setParams) =>{
-        
+    openGraphModalOnHomePage = (callerRef, params, setParams) =>{        
         const value = this[callerRef].current.getValue() 
         const date = new Date()
+        const block_type = this[callerRef].current.props.block_type
         var messages = this.state.messages
         var error = ""
         if(!value){
-            error = "Encountered errors in previous blocks. Please check parameters"
+            if(block_type === 'BEGIN')
+                error = "No dataset provided. Please load a proper csv file"
+            else
+                error = "Encountered errors in previous blocks. Please check parameters"
             messages.push([ date.toLocaleTimeString()+': '+error, 'error' ])
         }
         else if(typeof value === 'string'){
