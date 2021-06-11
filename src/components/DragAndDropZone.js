@@ -7,7 +7,7 @@ import {changeColor, checkBlocksAlreadyConnected, deleteArrowsConnectingBlock } 
 import Messages from "./Messages";
 import OverlayBlocks from '../blocks/overlayInfo'
 
-const DRAG_TYPE = ['BEGIN','PREPROCESSING','AGGREGATE','FILTER', 'RESAMPLE', 'SELECT', 'MERGE','END']
+const DRAG_TYPE = ['BEGIN','PREPROCESSING','COMBINE','FILTER', 'RESAMPLE', 'SELECT', 'MERGE','END']
 const DRAG_IDS = DRAG_TYPE.map(x=>Math.random())
 
 export class DragAndDropZone extends React.Component{

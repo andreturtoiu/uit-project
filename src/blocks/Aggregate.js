@@ -29,6 +29,9 @@ export default function Aggregate(props){
   }
 
   const renderOptions = () => {
+    if(!props.value){
+      return <p>No valid columns options. Check previous blocks</p>
+    }
     return <Form>
         <div className='row' style={{ justifyContent: 'space-between', marginTop: '1rem' }}>
           {props.value.listColumns().filter((label) => label !== 'date').map((col) => (
