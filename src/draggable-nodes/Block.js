@@ -177,10 +177,10 @@ class Block extends BlockClass {
         const {params} = this.state
         switch(this.props.block_type){
         case "BEGIN": return <><p>Uploaded file: <span style={{fontWeight:800}}>{this.state.fileName || "None"}</span></p></>
-            case "SELECT": return <><p>Selected columns: {params.labels.lenght>1 ?  params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}</p></>
+            case "SELECT": return <><p>Selected columns: {params.labels.length>1 ?  params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}</p></>
             case "PREPROCESSING": return <p>Function selected: <span style={{fontWeight:800}}>{params.prpFun}</span></p>
             case "COMBINE": return <p>
-                Executed "{params.aggFun}" on: {params.labels.lenght>1 ? params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}
+                Executed "{params.aggFun}" on: {params.labels.length>1 ? params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}
             </p>
             case "FILTER": return <p>Filtered from <span style={{fontWeight:800}}>{params.begin}</span> to <span style={{fontWeight:800}}>{params.end}</span></p>
             case "RESAMPLE": return <p>Resampled on <span style={{fontWeight:800}}>{params.sample ? params.sample : 'undefined'}</span> as <span style={{fontWeight:800}}>{params.resampleFun}</span></p>

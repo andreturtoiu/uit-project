@@ -100,7 +100,7 @@ export class HomePage extends React.Component {
                     inline
                     type='radio'
                     id='line'
-                    label='line'
+                    label='Line'
                     name='type'
                     checked={this.state.chartType === 'line'}
                     onChange={this.handleRadioChange}

@@ -146,7 +146,7 @@ export default class Begin extends React.Component {
             <Form.Group>
               {this.state.showForm &&
                 <div>
-                  <p>Seleziona la colonna da usare come data</p>
+                  <p>Select the date column</p>
                   {this.state.date_cols.map(col =>
                     <Form.Check
                       type={'radio'}
