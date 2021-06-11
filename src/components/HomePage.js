@@ -11,26 +11,26 @@ import Resample from '../blocks/Resample'
 import Preprocessing from '../blocks/Preprocessing'
 import Aggregate from '../blocks/Aggregate'
 import { convertToChart } from '../utils/show_utils'
+import ReactApexChart from 'react-apexcharts';
 
-export class HomePage extends React.Component{
-    constructor(props){        
-        super(props)      
+export class HomePage extends React.Component {
+    constructor(props) {
+        super(props)
         this.state = {
             showModal: false,
             callerModal: null,
             callerParams: {},
             blockValueCallbacks: {},
-            chartType:'line'
+            chartType: 'line'
         }
     }
 
     renderForm() {
-        //const { type, params, value } = this.state
-        const {callerModal, callerParams} = this.state
+        const { callerModal, callerParams } = this.state
         const value = callerModal.current.getParentValues()[0]
 
-        switch (callerModal.current.props.block_type) {            
-            case "BEGIN": return <Begin fileName={callerModal.current.getInputFileName()} valueCallBack={(df, name) => this.setHomePageValue(df, name)}/>
+        switch (callerModal.current.props.block_type) {
+            case "BEGIN": return <Begin fileName={callerModal.current.getInputFileName()} valueCallBack={(df, name) => this.setHomePageValue(df, name)} />
             case "END": return <p>END</p>//<End value={value} />
             case "SELECT": return <Select value={value} currParams={callerParams} paramsCallBack={(params) => this.setHomePageParams(params)} />
             case "FILTER": return <Filter value={value} currParams={callerParams} paramsCallBack={(params) => this.setHomePageParams(params)} />
@@ -43,39 +43,26 @@ export class HomePage extends React.Component{
     }
 
 
-    setHomePageParams = (params) => {
-        this.setState({callerParams: params})
-    }
+    setHomePageParams = (params) => { this.setState({ callerParams: params }) }
 
-    setHomePageValue = (value, name) => {
-        console.log("SETHOMEPAGEVALUE", value.listColumns())
-        value.show()
-        this.setState({value: value, fileName: name})
-    }
+    setHomePageValue = (value, name) => { this.setState({ value: value, fileName: name }) }
 
     renderParamsModal() {
-        return <Modal show={this.state.showParamsModal} onHide={() => this.setState({showParamsModal: false })}>
+        return <Modal show={this.state.showParamsModal} onHide={() => this.setState({ showParamsModal: false })}>
             <Modal.Header closeButton>
                 <Modal.Title>Set Parameters</Modal.Title>
             </Modal.Header>
             <Modal.Body>{this.renderForm()}</Modal.Body>
             <Modal.Footer>
                 <Button variant="primary" onClick={() => {
-                    console.log("ON CLICK SAVE")
-                    if(this.state.callerModal.current.props.block_type === "BEGIN"){
-                        console.log("IF BEGIN", this.state.callerModal.current.props.block_type)
+                    if (this.state.callerModal.current.props.block_type === "BEGIN")
                         this.state.callerModal.current.setBeginValue(this.state.value, this.state.fileName)
-                    }
-                    else{
-                        console.log("ELSE BEGIN", this.state.callerModal.current.props.block_type)
-                        this.state.setCallerParams(this.state.callerParams)
-                    }
-                    console.log("DONE")
-                    this.setState({showParamsModal: false })
-                    }}>
+                    else this.state.setCallerParams(this.state.callerParams)                    
+                    this.setState({ showParamsModal: false})
+                }}>
                     Save
                 </Button>
-                <Button variant="secondary" onClick={() => this.setState({showParamsModal: false })}>
+                <Button variant="secondary" onClick={() => this.setState({ showParamsModal: false})}>
                     Close
                 </Button>
 
@@ -83,70 +70,70 @@ export class HomePage extends React.Component{
         </Modal>
     }
 
-    renderSingleTypeChart(series,categories){
-        var options =  {
-            chart: {
-              id: "line"
-            },
+    renderSingleTypeChart(series, categories) {
+        var options = {
+            stroke:{ show: true,width: 1},
             xaxis: {
-              categories: categories
-            }
-          }
-        return(
-            <>
-            <Chart
-                type={this.state.chartType}
-                options={options}
-                series={series}
-                width="100%"
-            />
-            {this.getSingleFormChartType(this.handleRadioChange)}          
-            </>
+                categories: categories
+            },
+            dataLabels: { enabled: false},
+              
+        }
+        return (
+            <div style={{marginLeft:'4em'}}> 
+                {this.state.chartType&&
+                <ReactApexChart
+                    type={this.state.chartType}
+                    options={options}
+                    series={series}
+                    width="100%"
+                />}
+                {this.getSingleFormChartType()}
+            </div>
         )
     }
 
-    getSingleFormChartType(onChange){
-        return(
-        <Form>
-            <Form.Check
-                inline
-                type='radio'
-                id='line'
-                label='Line'
-                name='type'
-                defaultChecked = {true}
-                onChange={onChange}
-            />
-            <Form.Check
-                inline
-                type='radio'
-                id='bar'
-                label='Bar'
-                name='type'
-                defaultChecked = {false}
-                onChange={onChange}
-            />
-        </Form>)
+    getSingleFormChartType() {
+        return (
+            <Form>
+                <Form.Check
+                    inline
+                    type='radio'
+                    id='line'
+                    label='line'
+                    name='type'
+                    checked={this.state.chartType === 'line'}
+                    onChange={this.handleRadioChange}
+                />
+                <Form.Check
+                    inline
+                    type='radio'
+                    id='bar'
+                    label='Bar'
+                    name='type'
+                    checked={this.state.chartType === 'bar'}
+                    onChange={this.handleRadioChange}
+                />
+            </Form>)
     }
 
 
-
-    renderGraph(){
-        const graph = this.state.callerModal.current.getValue() 
-        if(!graph){
-            return <p>Nessun valore da mostrare</p>
+    renderGraph() {
+        const graph = this.state.callerModal.current.getValue()
+        if (!graph) {
+            return <p>Encountered errors in previous blocks. Please check parameters</p>
         }
-        if(graph.listColumns().length < 2){
-            return <p>Nessun valore da mostrare</p>
+        if (typeof graph === 'string') {
+            return <p>{graph}</p>
         }
-        
+        if (graph.listColumns().length < 2) {
+            return <p>No available data to display</p>
+        }
         const chart_data = convertToChart(graph)
-        var series  =  chart_data.series        
-        var chart = this.renderSingleTypeChart(series, chart_data.categories)
-          
+        var series = chart_data.series
         //options.series = chart_data.series
         const params = this.state.callerParams
-        console.log(params)
+        var chart = this.renderSingleTypeChart(series, chart_data.categories)
         return <div>
             {chart}           
             <div style={{marginTop:'2em'}}>
@@ -154,11 +141,11 @@ export class HomePage extends React.Component{
             </div>            
         </div>
     }
-    
-    handleRadioChange=(e)=>{console.log(e);this.setState({chartType:e.target.id})}
+
+    handleRadioChange=(e)=>{console.log("RADIO CHANGE", e.target.id);this.setState({chartType:e.target.id})}
 
     renderParamsOnGraphModal = (params, block_type) => {
-        switch(block_type){
+        switch (block_type) {
             case "SELECT": return <p>Columns selected: {params.labels.map(l => <p>{l}</p>)}</p>
             case "PREPROCESSING": return <p>Function selected: {params.prpFun}</p>
             case "AGGREGATE": return <p>
@@ -172,13 +159,13 @@ export class HomePage extends React.Component{
 
     renderGraphModal() {
         return (
-            <Modal size='lg' show={this.state.showGraphModal} onHide={() => this.setState({showGraphModal: false })}>
+            <Modal size='lg' show={this.state.showGraphModal} onHide={() => this.setState({ showGraphModal: false, chartType: 'line'  })}>
                 <Modal.Header closeButton>
                     <Modal.Title>Show Graph</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>{this.renderGraph()}</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => this.setState({showGraphModal: false })}>
+                    <Button variant="secondary" onClick={() => this.setState({ showGraphModal: false, chartType: 'line'  })}>
                         Close
                     </Button>
 
@@ -188,29 +175,31 @@ export class HomePage extends React.Component{
 
     openParamsModal = (callerRef, callerParams, setCallerParams) => {
         this.setState({
-            showParamsModal: true, 
-            callerModal: callerRef, 
-            callerParams: callerParams, 
-            setCallerParams: setCallerParams})
+            showParamsModal: true,
+            callerModal: callerRef,
+            callerParams: callerParams,
+            setCallerParams: setCallerParams
+        })
     }
 
     openGraphModal = (callerRef, callerParams) => {
         this.setState({
-            showGraphModal: true, 
-            callerModal: callerRef, 
-            callerParams: callerParams})
+            showGraphModal: true,
+            callerModal: callerRef,
+            callerParams: callerParams
+        })
     }
 
-    render(){
-        return(
-            
-            <div style={{display:'flex', flexDirection:'row'}}>
+    render() {
+        return (
+
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
                 {this.state.showParamsModal && this.state.callerModal && this.renderParamsModal()}
                 {this.state.showGraphModal && this.state.callerModal && this.renderGraphModal()}
-               <DragAndDropZone 
-                    parentCallbackOpenParamsModal = {this.openParamsModal}
-                    parentCallbackOpenGraphModal = {this.openGraphModal}
-                />                
+                <DragAndDropZone
+                    parentCallbackOpenParamsModal={this.openParamsModal}
+                    parentCallbackOpenGraphModal={this.openGraphModal}
+                />
             </div>
         )
     }

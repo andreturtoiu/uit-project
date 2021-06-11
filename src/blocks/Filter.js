@@ -2,6 +2,7 @@ import { FaTrash } from 'react-icons/fa';
 import ConnectButton, { connectButton } from './utils';
 import { Button, Form, Col, Row } from 'react-bootstrap';
 import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 
 export default function Filter(props) {
 
@@ -16,6 +17,15 @@ export default function Filter(props) {
   const onChangeBegin = (event) => setBegin(event.target.value)
   const onChangeEnd = (event) => setEnd(event.target.value)
 
+  const getDateValue = (date) => {
+    const date_formats = [
+      'YYYY-MM-DD HH:mm:ss',
+      'YYYY-MM-DD HH:mm',
+      'YYYY-MM-DD HH',
+      'YYYY-MM-DD'
+    ]
+    return moment(date, date_formats, true).format('YYYY-MM-DD')
+  }
 
   return (
     <div className='block-div-filter'>
@@ -28,7 +38,7 @@ export default function Filter(props) {
             </Form.Label>
             <Col sm="10">
               <Form.Control type="date" name="dob" placeholder="From" 
-              onChange={onChangeBegin} defaultValue={begin}/>
+              onChange={onChangeBegin} defaultValue={getDateValue(begin)}/>
             </Col>
           </Form.Group>
 
@@ -38,7 +48,7 @@ export default function Filter(props) {
           </Form.Label>
             <Col sm="10">
               <Form.Control type="date" name="dob" placeholder="To" 
-              onChange={onChangeEnd} defaultValue={end}/>
+              onChange={onChangeEnd} defaultValue={getDateValue(end)}/>
             </Col>
           </Form.Group>
         </Form>

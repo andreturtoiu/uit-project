@@ -1,9 +1,11 @@
 import React, { createRef } from "react";
+import { FaInfoCircle } from "react-icons/fa";
 import Block from '../draggable-nodes/Block'
 import '../styles/css/homepage.css'
 import { connectElements, deleteArrowById, getFirstPositionArrow, setMousePosition } from '../utils/utils_arrows'
 import {changeColor, checkBlocksAlreadyConnected, deleteArrowsConnectingBlock } from '../utils/utils_block'
 import Messages from "./Messages";
+import OverlayBlocks from '../blocks/overlayInfo'
 
 const DRAG_TYPE = ['BEGIN','PREPROCESSING','AGGREGATE','FILTER', 'RESAMPLE', 'SELECT', 'MERGE','END']
 const DRAG_IDS = DRAG_TYPE.map(x=>Math.random())
@@ -278,6 +280,24 @@ export class DragAndDropZone extends React.Component{
     } 
 
     openGraphModalOnHomePage = (callerRef, params, setParams) =>{
+        
+        const value = this[callerRef].current.getValue() 
+        const date = new Date()
+        var messages = this.state.messages
+        var error = ""
+        if(!value){
+            error = "Encountered errors in previous blocks. Please check parameters"
+            messages.push([ date.toLocaleTimeString()+': '+error, 'error' ])
+        }
+        else if(typeof value === 'string'){
+            messages.push([ date.toLocaleTimeString()+': '+value, 'error' ])
+        }
+        else if(value.listColumns().length < 2){
+            error = "No available data to display"
+            messages.push([ date.toLocaleTimeString()+': '+error, 'error' ])
+        }
+        
+        this.setState({ messages:messages })
         this.props.parentCallbackOpenGraphModal(this[callerRef], params, setParams)
     } 
 
@@ -302,8 +322,9 @@ export class DragAndDropZone extends React.Component{
     render(){
         return(<>
                 <div>
-                    <div className='message-header'>
+                    <div className='message-header'>                        
                         <h5 style={{textAlign:'center', paddingTop:'0.3em'}}>List of blocks</h5>
+                        <OverlayBlocks/>
                     </div>
                     <div id='drag-zone' ref={this.refDragZone} style={{display:'flex', flexDirection:'column'}}>
                         

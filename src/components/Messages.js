@@ -1,7 +1,7 @@
 export default function Messages(props){
     return(
         <div>
-        <div className='message-header'>
+        <div className='state-header'>
             <h5 style={{textAlign:'center', paddingTop:'0.3em'}}>State of program</h5>
         </div>
         <div className='messages-zone' style={{display:'flex', flexDirection:'column'}} ref={props.inner}>

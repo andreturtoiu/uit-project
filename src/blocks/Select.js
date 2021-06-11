@@ -12,7 +12,6 @@ export default function Select(props) {
   }, []);
 
   const handleChange = (event) => {
-    console.log("ON CHANGE", event)
     const col = event.target.name
     var newLabels = labels
     if (!labels.some((label) => label === col)) {

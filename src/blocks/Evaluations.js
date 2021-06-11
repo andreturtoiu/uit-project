@@ -13,6 +13,9 @@ function evalFilter(df, params) {
     if (!params) {
         return df
     }
+    if (!params.begin || !params.end){
+        return df
+    }
     const { begin, end } = params
     return df.filter(row => row.get('date') >= begin && row.get('date') <= end)
 }
@@ -40,7 +43,6 @@ function evalResample(df, params) {
     var df_resample = df.withColumn('date', (row) => truncDate(params.sample, row.get('date')))
     var df_grouped = df_resample.groupBy('date')
     var cols = df_resample.listColumns().filter(l => l !== 'date')
-    console.log("COLS", cols)
     var dfs = cols.map(col => df_grouped.aggregate(group=>evalGroupStat(group, col, params.stat)).rename('aggregation', col))
     dfs.forEach(df => df.show())
     dfs = dfs.reduce((p, a) => p.join(a, ['date']))
@@ -63,7 +65,6 @@ function truncDate(sample, date) {
         default:
             substr_len = 19
     }
-    console.log(sample, substr_len, date.slice(0, substr_len))
     return date.slice(0, substr_len)
 }
 
@@ -94,15 +95,11 @@ function evalPreprocessing(df, params) {
 }
 
 function evalAggregate(df, params) {
-    console.log("EVAL AGGREGATE", df, params)
     if (!params) {
-        console.log("EVAL AGG RETURN DF FOR NOT PARAMS")
         return df
     }
-    console.log("EVAL AGG PARAMS", params)
     const { aggFun, labels } = params
     const evalFun = (fun) => {
-        console.log("EVAL AGG - EVAL FUN", fun)
         switch (fun) {
             case 'sum':
                 return (partial, a) => (partial + a)
@@ -127,15 +124,10 @@ function evalAggregate(df, params) {
         agg_df = agg_df.drop(l)
     })
 
-    agg_df.show()
 
     return agg_df
 }
 function evalMergeReduce(df, df2) {
-    console.log("EVAL MERGE! DF1")
-    df.show()
-    console.log("EVAL MERGE! DF2")
-    df2.show()
     const df_cols = df.listColumns()
     const df2_cols = df2.listColumns().filter(col => col !== 'date')
     //rename df2 cols
@@ -152,15 +144,20 @@ function evalMergeReduce(df, df2) {
         }
         df2_renamed = df2_renamed.rename(col, new_col_name)
     });
-    console.log("EVAL MERGE! DF RENAMED")
-    df2_renamed.show()
-    const res = df.innerJoin(df2_renamed, ["date"])
-    res.show()
+    const res = df.fullJoin(df2_renamed, ["date"])
     return res
 }
 
 function evalMerge(dfs) {
-    return dfs.reduce( (part, a) => evalMergeReduce(part, a) )
+    const date_lengths = dfs.map(df => {
+        const row = df.getRow(0)
+        const date = row.get('date')
+        return date.length
+    })
+    if(date_lengths.reduce( (d1, d2) => d1 === d2)){
+        return dfs.reduce( (part, a) => evalMergeReduce(part, a) )
+    }
+    return "Merge Error: you can't merge dataframes with different samples"
 }
 
 export {

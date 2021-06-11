@@ -16,7 +16,6 @@ export default function Aggregate(props){
   }, []);
 
   const handleChange = (event) => {
-    console.log("HANDLE CHANGE", event)
     const col = event.target.name
     var newLabels = labels
     if (!labels.some((label) => label === col)) {

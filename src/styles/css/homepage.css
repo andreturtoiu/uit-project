@@ -36,9 +36,13 @@
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.24);
 
 }
+.state-header{
+    height: 4vh;
+    background-color: rgb(206, 203, 203);
+}
 
 .message-header{
-    height: 4vh;
+    height: 7vh;
     background-color: rgb(206, 203, 203);
 }
 

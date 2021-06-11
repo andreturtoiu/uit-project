@@ -37,7 +37,6 @@ export default class Begin extends React.Component {
     var validDateCols = []
     keys.forEach(element => {
       var value = firstRow[element]
-      console.log("KEY DATE", element, value, typeof value, isNaN(value))
       var isValidDate
 
       if (isNaN(value)) { //value è una stringa, verifichiamo se può essere una data valida
@@ -66,15 +65,11 @@ export default class Begin extends React.Component {
 
   //fileinfo USE TO CHECK ERRORS
   checkDataset = (data, fileInfo) => {
-    console.log("FILE INFO", fileInfo)
     const keys = Object.keys(data[0])
-    console.log("KEYS", keys) //lista colonne
-    console.log("DATA", data) //lista di rows
     const validDateCols = this.getValidDateCols(keys, data[0])
     const validDataCols = this.getValidDataCols(keys, data[0])
     //CONTROLLI SUL FILE QUI
     //Check delle colonne ed eventualmente togli quello che non è numerico
-    console.log("VALID DATES IN CHECK", validDateCols)
     const df = new DataFrame(data, keys)
 
     //controllare che nel file ci siano date valide 
@@ -100,7 +95,6 @@ export default class Begin extends React.Component {
 
   getDesiredDataFrame = (date_col) => {
     const { base_df, columns } = this.state
-    console.log(base_df)
     const value_cols = columns.filter(l => l !== date_col)
     var requested_df = base_df.rename(date_col, 'date')
     requested_df = requested_df.select('date', ...value_cols)
@@ -121,8 +115,6 @@ export default class Begin extends React.Component {
   }
 
   handleDateSelect = (event) => {
-    console.log("ON CHANGE", event)
-    console.log("ONCHANGE", event.target)
     const col = event.target.id
 
     //Prepare DataFrame

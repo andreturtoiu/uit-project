@@ -15,120 +15,138 @@ const data = [
 ]
 const df = new DataFrame(data)
 
-class Block extends BlockClass{
-    constructor(props){        
-        super(props); 
+class Block extends BlockClass {
+    constructor(props) {
+        super(props);
         this.top_button = React.createRef()
         this.bottom_button = React.createRef()
         this.blockRef = this.handleRef
 
-        this.state={
-            blockRef:this.handleRef,
+        this.state = {
+            blockRef: this.handleRef,
             parentRefs: this.props.parentRefs,
             params: {},
             value: null
-        }      
+        }
     }
-    
-    
+
+
     setBeginValue = (df, file) => {
-        this.setState({value: df, fileName: file})
+        this.setState({ value: df, fileName: file })
     }
-    
-    componentDidMount(){
-        console.log("COMPONENT DID MOUNT")
+
+    componentDidMount() {
         var default_params = {
             'labels': [],
-            'begin': '2000-01-01 00:00:00', 
-            'end': '2100-01-01 00:00:00', 
-            'sample': 'day',
             'resampleFun': 'sum',
             'prpFun': 'log',
             'aggFun': 'sum'
         }
-        this.setState({params: default_params})
+        this.setState({ params: default_params })
     }
 
-    
+
 
     getParentParams = () => {
-        //console.log("PARENT REFS", this.props.parentRefs)
-        if(this.props.parentRefs){
+        if (this.props.parentRefs) {
             return this.props.parentRefs.map(p => p.current.getParams())
         }
-        else{
+        else {
             return [{}]
         }
     }
-    
+
     syncParamsFromParent = () => {
-        var {params} = this.state
-        //console.log("CALLING SYNCPARAMS", params, parent_params)
-        if(!params){
+        var { params } = this.state
+        if (!params) {
             return
         }
         const parent_values = this.getParentValues()
-        if(!parent_values){
+        if (!parent_values) {
             return
         }
         const parent_value = parent_values[0]
-        if(!parent_value){
+        if (!parent_value) {
             return
         }
-       // console.log("SYNCED PARAMS")
-       if(params.labels){
-        params.labels = params.labels.filter(l => parent_value.listColumns().some(pl => pl === l))
-        
-       }
-       this.setParams(params)
-        
-    }
-
-    componentDidUpdate(prevProps){
-        if(prevProps.parentRefs!=this.props.parentRefs){
-            this.syncParamsFromParent()
+        // console.log("SYNCED PARAMS")
+        if (params.labels) {
+            params.labels = params.labels.filter(l => parent_value.listColumns().some(pl => pl === l))
         }
+
+        if (this.props.block_type === 'FILTER') {
+            const dates = parent_value.select('date')
+            const parent_begin = dates.getRow(0).get('date')
+            parent_value.show()
+            const parent_end = dates.sortBy('date', true).getRow(0).get('date')
+            parent_value.show()
+            if (params.begin) 
+                params.begin = params.begin < parent_begin ? parent_begin : params.begin
+            else params.begin = parent_begin 
+
+            if (params.end)  params.end = params.end < parent_end ? parent_end : params.end 
+            else params.end = parent_end
+        }
+
+        if(this.props.block_type === 'RESAMPLE') {
+            const date_length = parent_value.getRow(0).get('date').length
+            const curr_sample = params.sample
+            var valid_samples = []
+            // check valid resamples
+            if (date_length >= 16) { valid_samples.push('minute') }
+            if (date_length >= 13) { valid_samples.push('hour') }
+            if (date_length >= 10) { valid_samples.push('day') }
+            if (date_length >= 7) { valid_samples.push('month') }
+            if (date_length >= 4) { valid_samples.push('year') }
+            // check if curr_sample is ok
+            if(!valid_samples.some(s => s === curr_sample)){
+                // our current sample is not ok, we have to update it
+                if (date_length === 16) { params.sample = 'minute' }
+                if (date_length === 13) { params.sample = 'hour' }
+                if (date_length === 10) { params.sample = 'day' }
+                if (date_length === 7) { params.sample = 'month' }
+                if (date_length === 4) { params.sample = 'year' }
+            }
+        }
+
+        this.setParams(params)
+
     }
 
-    trashCallback=()=>{        
+    componentDidUpdate(prevProps) {
+        if (prevProps.parentRefs != this.props.parentRefs) 
+            this.syncParamsFromParent()
+        
+    }
+
+    trashCallback = () => {
         this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
     }
-    
-    drawCallback=(e,ref)=>{
-        this.props.parentCallbackDraw(this.blockRef.current,e, ref.current)
+
+    drawCallback = (e, ref) => {
+        this.props.parentCallbackDraw(this.blockRef.current, e, ref.current)
     }
 
-    prova =()=>{console.log('chiamato da HomePage: prova')}
-
     getParentValues = () => {
-        //console.log("PARENT REFS", this.props.parentRefs)
-        if(this.props.parentRefs){
-            return this.props.parentRefs.map(p => p.current.getValue())
-        }
-        else{
-            return []
-        }
+        if (this.props.parentRefs) 
+            return this.props.parentRefs.map(p => p.current.getValue())        
+        else return []        
     }
 
     getValue = () => {
-        console.log("INIZIO GET VALUE")
-        if(this.props.block_type === "BEGIN"){
-            return this.state.value
-        }
+        if (this.props.block_type === "BEGIN") return this.state.value    
         const parent_values = this.getParentValues()
-        console.log("PARENT VALUES", parent_values)
-        //console.log("PARENT VALUES", parent_values)
-        if(!parent_values){
-            console.log("NO PARENT VALUES, RETURN!")
-            return []
-        }
+        //check if string error
+        const errors = parent_values.filter(p => typeof p === 'string')
+        if (errors.length > 0) return errors[0]
+        if (!parent_values)  return []
+
         const value = parent_values[0]
-        console.log("VALUE", value)
-        if(!value){
-            return null
-        }
         
-        const {params} = this.state
+        if (!value)  return null
+        
+        const { params } = this.state
+        
         switch (this.props.block_type) {
             case "END": return value
             case "SELECT": return evalSelect(value, params)
@@ -142,21 +160,8 @@ class Block extends BlockClass{
 
     }
 
-    getParams = () => {
-        return this.state.params
-    }
-
-    setParams = (params) => {
-        this.setState({params: params})
-    }
-
-    showGraph = () => {
-        console.log(this.getValue())
-    }
-
-    showParams = () => {
-        console.log(this.state.params)
-    }
+    getParams = () => { return this.state.params  }
+    setParams = (params) => { this.setState({ params: params }) }
 
     renderTooltip = (props) => (        
         <Tooltip id="button-tooltip" {...props} >
@@ -178,7 +183,7 @@ class Block extends BlockClass{
                 Executed "{params.aggFun}" on: {params.labels.lenght>1 ? params.labels.map(l => <span style={{fontWeight:800}}>{l}</span>): <span style={{fontWeight:800}}>None</span>}
             </p>
             case "FILTER": return <p>Filtered from <span style={{fontWeight:800}}>{params.begin}</span> to <span style={{fontWeight:800}}>{params.end}</span></p>
-            case "RESAMPLE": return <p>Resampled on <span style={{fontWeight:800}}>{params.sample}</span> as <span style={{fontWeight:800}}>{params.resampleFun}</span></p>
+            case "RESAMPLE": return <p>Resampled on <span style={{fontWeight:800}}>{params.sample ? params.sample : 'undefined'}</span> as <span style={{fontWeight:800}}>{params.resampleFun}</span></p>
             default: return <p></p>
         }
     
@@ -188,82 +193,82 @@ class Block extends BlockClass{
         return this.state.fileName
     }
 
-    renderBlock(type){
+    renderBlock(type) {
         return (
-            <div className={`general-block ${this.props.block_type}`}              
-                onClick={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                onDoubleClick={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                >                
+            <div className={`general-block ${this.props.block_type}`}
+                onClick={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                onDoubleClick={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+            >
                 <div>
-                    <p style={{fontSize:'0.9em', fontWeight:900, color:'white'}}>{this.props.block_type}</p>
-                    <div style={{display:'flex', justifyContent:'space-around'}}>
+                    <p style={{ fontSize: '0.9em', fontWeight: 900, color: 'white' }}>{this.props.block_type}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
                         <FaTrash className='fa-icon'
-                            block_id={this.props.blockRef?this.props.blockRef.id:''}                            
-                            onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                            onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                            onClick={e=>{
+                            block_id={this.props.blockRef ? this.props.blockRef.id : ''}
+                            onMouseDown={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onMouseMove={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onClick={e => {
                                 e.preventDefault();
                                 this.props.parentCallbackDeleteDropBlock(parseFloat(this.handleRef.current.id.split('-')[2]))
-                            }}/>
-                        <OverlayTrigger                            
+                            }} />
+                        <OverlayTrigger
                             placement="right"
                             delay={{ show: 250, hide: 400 }}
                             overlay={this.renderTooltip}
                         >
-                        <FaSearch className='fa-icon'
-                            onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                            onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                            onMouseOver={e=>{
-                                e.stopPropagation(); 
-                                e.nativeEvent.stopImmediatePropagation(); 
-                                this.showParams();
-                            }}
-                            onClick={e=>{
-                                e.preventDefault(); 
-                                this.props.parentCallbackOpenGraphModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
-                                }}/>
+                            <FaSearch className='fa-icon'
+                                onMouseDown={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                                onMouseMove={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                                onMouseOver={e => {
+                                    e.stopPropagation();
+                                    e.nativeEvent.stopImmediatePropagation();
+                                    this.showParams();
+                                }}
+                                onClick={e => {
+                                    e.preventDefault();
+                                    this.props.parentCallbackOpenGraphModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
+                                }} />
                         </OverlayTrigger>
-                        {this.props.block_type!=='MERGE' && this.props.block_type!=='END' && <FaEdit className='fa-icon'
-                        onMouseDown={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                        onMouseMove={e=>{ e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                        onClick={e=>{
-                            e.preventDefault(); 
-                            this.syncParamsFromParent()
-                            this.props.parentCallbackOpenParamsModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
+                        {this.props.block_type !== 'MERGE' && this.props.block_type !== 'END' && <FaEdit className='fa-icon'
+                            onMouseDown={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onMouseMove={e => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                            onClick={e => {
+                                e.preventDefault();
+                                this.syncParamsFromParent()
+                                this.props.parentCallbackOpenParamsModal(this.handleRef.current.id.split('-')[2], this.state.params, this.setParams)
                             }}
                         />}
                     </div>
                 </div>
-                {this.props.block_type!=='BEGIN'&& this.props.block_type!=='END' && 
-                <ConnectButton 
-                    position='top'
-                    cssStyle='conn-btn-top'
-                    childComponentRef={this.top_button}
-                    parentCallbackDraw={this.drawCallback}/>}
-                {this.props.block_type!=='END'&&
-                <ConnectButton 
-                    position='bottom'                    
-                    cssStyle={`${this.props.block_type!=='BEGIN' ? 'conn-btn-bottom' : 'conn-btn-begin-bottom'}`}
-                    childComponentRef={this.bottom_button}
-                    parentCallbackDraw={this.drawCallback}/>}
-                {this.props.block_type==='END'&&
-                <ConnectButton 
-                    position='top'                    
-                    cssStyle='conn-btn-end-top'
-                    childComponentRef={this.bottom_button}
-                    parentCallbackDraw={this.drawCallback}/>}
+                {this.props.block_type !== 'BEGIN' && this.props.block_type !== 'END' &&
+                    <ConnectButton
+                        position='top'
+                        cssStyle='conn-btn-top'
+                        childComponentRef={this.top_button}
+                        parentCallbackDraw={this.drawCallback} />}
+                {this.props.block_type !== 'END' &&
+                    <ConnectButton
+                        position='bottom'
+                        cssStyle={`${this.props.block_type !== 'BEGIN' ? 'conn-btn-bottom' : 'conn-btn-begin-bottom'}`}
+                        childComponentRef={this.bottom_button}
+                        parentCallbackDraw={this.drawCallback} />}
+                {this.props.block_type === 'END' &&
+                    <ConnectButton
+                        position='top'
+                        cssStyle='conn-btn-end-top'
+                        childComponentRef={this.bottom_button}
+                        parentCallbackDraw={this.drawCallback} />}
             </div>
         )
     }
 
-    render(){
+    render() {
         return (
             super.render(this.renderBlock())
         )
-        
-    }    
-    
-    
+
+    }
+
+
 }
 
 export default Block

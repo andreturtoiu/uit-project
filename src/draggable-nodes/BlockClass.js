@@ -2,6 +2,7 @@ import React from 'react'
 import '../styles/css/draggable.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { parseTransform } from '../utils/utils_block';
+import { FaInfo, FaInfoCircle } from 'react-icons/fa';
 
 class BlockClass extends React.Component {
     constructor(props){        
@@ -109,14 +110,16 @@ class BlockClass extends React.Component {
             onMouseDown={e=>this.handleMouseDown(e)}
             ref={this.handleRef}>
                 {!this.props.dragZone&&<div>{args}</div>}
-                <div style={{height:'90%'}}>
+                <div style={{height:'100%'}}>
                     {this.props.dragZone&&
-                    <p style={{
-                            fontWeight:'bold',
-                            fontSize:'1em',
-                            color:'white'}}>
-                        {this.props.block_type}
-                    </p>}
+                        <>
+                        <p style={{
+                                fontWeight:'bold',
+                                fontSize:'1em',
+                                color:'white'}}>
+                            {this.props.block_type}
+                        </p>
+                        </>}
                 </div>
             </div>
             )
