@@ -326,7 +326,7 @@ export class DragAndDropZone extends React.Component{
         return(<>
                 <div>
                     <div className='message-header'>                        
-                        <h5 style={{textAlign:'center', paddingTop:'0.3em'}}>List of blocks</h5>
+                        <h5 style={{textAlign:'center', paddingTop:'0.3em'}}>List of draggable blocks</h5>
                         <OverlayBlocks/>
                     </div>
                     <div id='drag-zone' ref={this.refDragZone} style={{display:'flex', flexDirection:'column'}}>
