@@ -84,7 +84,7 @@ class Block extends BlockClass {
                 params.begin = params.begin < parent_begin ? parent_begin : params.begin
             else params.begin = parent_begin 
 
-            if (params.end)  params.end = params.end < parent_end ? parent_end : params.end 
+            if (params.end)  params.end = params.end < parent_end ? params.end :parent_end
             else params.end = parent_end
         }
 
